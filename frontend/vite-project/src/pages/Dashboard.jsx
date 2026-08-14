@@ -1,5 +1,5 @@
 import Header from "../components/Header/Header";
-import CarForm from "../components/CarForm/CarForm";
+import CarForm from "../components/CarForm.jsx";
 
 function Dashboard() {
   return (
