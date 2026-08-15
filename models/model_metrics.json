@@ -1,0 +1,12 @@
+{
+    "model": "RandomForestRegressor",
+    "best_params": {
+        "n_estimators": 500,
+        "min_samples_split": 2,
+        "min_samples_leaf": 1,
+        "max_features": "sqrt",
+        "max_depth": 20
+    },
+    "MAE": 87844.43335363938,
+    "R2": 0.9419130981313832
+}
