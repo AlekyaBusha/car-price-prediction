@@ -3,11 +3,14 @@
 # ==========================
 venv/
 .venv/
+env/
 __pycache__/
 *.py[cod]
 *$py.class
 
+# ==========================
 # Jupyter
+# ==========================
 .ipynb_checkpoints/
 
 # ==========================
@@ -15,15 +18,6 @@ __pycache__/
 # ==========================
 .env
 .env.*
-
-# ==========================
-# Machine Learning Models
-# ==========================
-backend/models/*.pkl
-backend/models/*.joblib
-backend/models/*.h5
-backend/models/*.pt
-backend/models/*.onnx
 
 # ==========================
 # Python Build Files
@@ -71,6 +65,4 @@ htmlcov/
 *.tmp
 *.temp
 
-backend/models/*.pkl
 # Large ML model files
-models/*.pkl

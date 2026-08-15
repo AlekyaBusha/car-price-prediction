@@ -12,31 +12,47 @@ from pydantic import BaseModel, Field
 # Input Schema
 # ==========================================================
 
+# ==========================================================
+# Input Schema
+# ==========================================================
+
 class CarInput(BaseModel):
     """
-    User input for prediction.
+    User input required for car price prediction.
     """
 
-    # ----------------------------
-    # Mandatory Fields
-    # ----------------------------
+    # ------------------------------------------------------
+    # Required Fields
+    # ------------------------------------------------------
 
-    brand: str = Field(..., description="Car Brand")
+    brand: str = Field(
+        ...,
+        description="Car Brand"
+    )
 
-    model: str = Field(..., description="Car Model")
+    model: str = Field(
+        ...,
+        description="Car Model"
+    )
 
-    fuel_type: str = Field(..., description="Fuel Type")
+    fuel_type: str = Field(
+        ...,
+        description="Fuel Type"
+    )
 
-    transmission_type: str = Field(..., description="Transmission Type")
+    transmission_type: str = Field(
+        ...,
+        description="Transmission Type"
+    )
 
-    # ----------------------------
-    # Optional Fields
-    # ----------------------------
-
-    seller_type: Optional[str] = Field(
-        default=None,
+    seller_type: str = Field(
+        ...,
         description="Seller Type"
     )
+
+    # ------------------------------------------------------
+    # Optional Numeric Fields
+    # ------------------------------------------------------
 
     engine: Optional[float] = Field(
         default=None,
@@ -45,7 +61,7 @@ class CarInput(BaseModel):
 
     max_power: Optional[float] = Field(
         default=None,
-        description="Max Power"
+        description="Maximum Power in bhp"
     )
 
     seats: Optional[int] = Field(
@@ -55,7 +71,7 @@ class CarInput(BaseModel):
 
     vehicle_age: Optional[float] = Field(
         default=None,
-        description="Vehicle Age"
+        description="Vehicle Age in Years"
     )
 
     km_driven: Optional[float] = Field(
@@ -65,8 +81,20 @@ class CarInput(BaseModel):
 
     mileage: Optional[float] = Field(
         default=None,
-        description="Mileage"
+        description="Mileage in km/l"
     )
+
+    # ==========================================================
+# Price Range
+# ==========================================================
+
+class PriceRange(BaseModel):
+
+    low: float
+
+    predicted: float
+
+    high: float
 
 
 # ==========================================================
@@ -79,8 +107,9 @@ class PredictionResponse(BaseModel):
 
     predicted_price: float
 
-    currency: str = "INR"
+    price_range: PriceRange
 
+    currency: str = "INR"
 
 # ==========================================================
 # AI Suggestion Models

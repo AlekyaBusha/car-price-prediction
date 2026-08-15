@@ -2,8 +2,23 @@
 backend/services/dropdown_service.py
 
 Provides dynamic dropdown values from the dataset.
+
+Dropdown dependency:
+
+Brand
+   ↓
+Model
+   ↓
+Fuel Type
+Transmission
+Seller Type
+Engine
+Max Power
+Seats
 """
+
 from backend.utils.data_loader import data_loader
+
 
 class DropdownService:
 
@@ -11,86 +26,181 @@ class DropdownService:
 
         self.df = data_loader.df
 
-    # -----------------------------------
+    # ==========================================================
     # Brand
-    # -----------------------------------
+    # ==========================================================
 
     def get_brands(self):
 
         return sorted(
-            self.df["brand"].dropna().unique().tolist()
+            self.df["brand"]
+            .dropna()
+            .astype(str)
+            .unique()
+            .tolist()
         )
 
-    # -----------------------------------
-    # Model (Based on Brand)
-    # -----------------------------------
+    # ==========================================================
+    # Model based on Brand
+    # ==========================================================
 
     def get_models(self, brand):
 
-        df = self.df[self.df["brand"] == brand]
+        df = self.df[
+            self.df["brand"].astype(str) == str(brand)
+        ]
 
         return sorted(
-            df["model"].dropna().unique().tolist()
+            df["model"]
+            .dropna()
+            .astype(str)
+            .unique()
+            .tolist()
         )
 
-    # -----------------------------------
-    # Fuel Type
-    # -----------------------------------
+    # ==========================================================
+    # Brand + Model filtering
+    # ==========================================================
 
-    def get_fuel_types(self):
+    def get_model_data(self, brand, model):
+
+        df = self.df[
+            (self.df["brand"].astype(str) == str(brand))
+            &
+            (self.df["model"].astype(str) == str(model))
+        ]
+
+        return df
+
+    # ==========================================================
+    # Fuel Types
+    # ==========================================================
+
+    def get_fuel_types(self, brand, model):
+
+        df = self.get_model_data(
+            brand,
+            model
+        )
 
         return sorted(
-            self.df["fuel_type"].dropna().unique().tolist()
+            df["fuel_type"]
+            .dropna()
+            .astype(str)
+            .unique()
+            .tolist()
         )
 
-    # -----------------------------------
-    # Transmission
-    # -----------------------------------
+    # ==========================================================
+    # Transmission Types
+    # ==========================================================
 
-    def get_transmission_types(self):
+    def get_transmission_types(
+        self,
+        brand,
+        model
+    ):
+
+        df = self.get_model_data(
+            brand,
+            model
+        )
 
         return sorted(
-            self.df["transmission_type"].dropna().unique().tolist()
+            df["transmission_type"]
+            .dropna()
+            .astype(str)
+            .unique()
+            .tolist()
         )
 
-    # -----------------------------------
-    # Seller Type
-    # -----------------------------------
+    # ==========================================================
+    # Seller Types
+    # ==========================================================
 
-    def get_seller_types(self):
+    def get_seller_types(
+        self,
+        brand,
+        model
+    ):
+
+        df = self.get_model_data(
+            brand,
+            model
+        )
 
         return sorted(
-            self.df["seller_type"].dropna().unique().tolist()
+            df["seller_type"]
+            .dropna()
+            .astype(str)
+            .unique()
+            .tolist()
         )
 
-    # -----------------------------------
-    # Engine
-    # -----------------------------------
+    # ==========================================================
+    # Engines
+    # ==========================================================
 
-    def get_engines(self):
+    def get_engines(
+        self,
+        brand,
+        model
+    ):
+
+        df = self.get_model_data(
+            brand,
+            model
+        )
 
         return sorted(
-            self.df["engine"].dropna().unique().tolist()
+            df["engine"]
+            .dropna()
+            .unique()
+            .tolist()
         )
 
-    # -----------------------------------
-    # Seats
-    # -----------------------------------
-
-    def get_seats(self):
-
-        return sorted(
-            self.df["seats"].dropna().unique().tolist()
-        )
-
-    # -----------------------------------
+    # ==========================================================
     # Max Power
-    # -----------------------------------
+    # ==========================================================
 
-    def get_max_powers(self):
+    def get_max_powers(
+        self,
+        brand,
+        model
+    ):
+
+        df = self.get_model_data(
+            brand,
+            model
+        )
 
         return sorted(
-            self.df["max_power"].dropna().unique().tolist()
+            df["max_power"]
+            .dropna()
+            .unique()
+            .tolist()
+        )
+
+    # ==========================================================
+    # Seats
+    # ==========================================================
+
+    def get_seats(
+        self,
+        brand,
+        model
+    ):
+
+        df = self.get_model_data(
+            brand,
+            model
+        )
+
+        return sorted(
+            df["seats"]
+            .dropna()
+            .unique()
+            .tolist()
         )
 
 

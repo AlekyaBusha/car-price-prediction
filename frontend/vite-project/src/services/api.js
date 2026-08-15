@@ -1,7 +1,14 @@
 const BASE_URL = "http://127.0.0.1:8000";
 
+
+// =========================================================
+// DROPDOWNS
+// =========================================================
+
 export async function fetchBrands() {
-  const response = await fetch(`${BASE_URL}/dropdown/brands`);
+  const response = await fetch(
+    `${BASE_URL}/dropdown/brands`
+  );
 
   if (!response.ok) {
     throw new Error("Failed to fetch brands");
@@ -9,6 +16,7 @@ export async function fetchBrands() {
 
   return response.json();
 }
+
 
 export async function fetchModels(brand) {
   const response = await fetch(
@@ -22,8 +30,11 @@ export async function fetchModels(brand) {
   return response.json();
 }
 
-export async function fetchFuelTypes() {
-  const response = await fetch(`${BASE_URL}/dropdown/fuel-types`);
+
+export async function fetchFuelTypes(brand, model) {
+  const response = await fetch(
+    `${BASE_URL}/dropdown/fuel-types/${encodeURIComponent(brand)}/${encodeURIComponent(model)}`
+  );
 
   if (!response.ok) {
     throw new Error("Failed to fetch fuel types");
@@ -32,8 +43,11 @@ export async function fetchFuelTypes() {
   return response.json();
 }
 
-export async function fetchTransmissions() {
-  const response = await fetch(`${BASE_URL}/dropdown/transmissions`);
+
+export async function fetchTransmissions(brand, model) {
+  const response = await fetch(
+    `${BASE_URL}/dropdown/transmissions/${encodeURIComponent(brand)}/${encodeURIComponent(model)}`
+  );
 
   if (!response.ok) {
     throw new Error("Failed to fetch transmissions");
@@ -42,8 +56,11 @@ export async function fetchTransmissions() {
   return response.json();
 }
 
-export async function fetchSellerTypes() {
-  const response = await fetch(`${BASE_URL}/dropdown/seller-types`);
+
+export async function fetchSellerTypes(brand, model) {
+  const response = await fetch(
+    `${BASE_URL}/dropdown/seller-types/${encodeURIComponent(brand)}/${encodeURIComponent(model)}`
+  );
 
   if (!response.ok) {
     throw new Error("Failed to fetch seller types");
@@ -52,8 +69,11 @@ export async function fetchSellerTypes() {
   return response.json();
 }
 
-export async function fetchEngines() {
-  const response = await fetch(`${BASE_URL}/dropdown/engines`);
+
+export async function fetchEngines(brand, model) {
+  const response = await fetch(
+    `${BASE_URL}/dropdown/engines/${encodeURIComponent(brand)}/${encodeURIComponent(model)}`
+  );
 
   if (!response.ok) {
     throw new Error("Failed to fetch engines");
@@ -62,8 +82,24 @@ export async function fetchEngines() {
   return response.json();
 }
 
-export async function fetchSeats() {
-  const response = await fetch(`${BASE_URL}/dropdown/seats`);
+
+export async function fetchMaxPowers(brand, model) {
+  const response = await fetch(
+    `${BASE_URL}/dropdown/max-powers/${encodeURIComponent(brand)}/${encodeURIComponent(model)}`
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch max powers");
+  }
+
+  return response.json();
+}
+
+
+export async function fetchSeats(brand, model) {
+  const response = await fetch(
+    `${BASE_URL}/dropdown/seats/${encodeURIComponent(brand)}/${encodeURIComponent(model)}`
+  );
 
   if (!response.ok) {
     throw new Error("Failed to fetch seats");
@@ -72,12 +108,110 @@ export async function fetchSeats() {
   return response.json();
 }
 
-export async function fetchMaxPowers() {
-  const response = await fetch(`${BASE_URL}/dropdown/max-powers`);
+
+// =========================================================
+// PREDICTION
+// =========================================================
+
+export async function predictPrice(carData) {
+
+  const response = await fetch(
+    `${BASE_URL}/predict/`,
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+
+      body: JSON.stringify(carData),
+    }
+  );
+
 
   if (!response.ok) {
-    throw new Error("Failed to fetch max powers");
+
+    const errorText =
+      await response.text();
+
+    throw new Error(
+      `Prediction failed: ${errorText}`
+    );
   }
+
+
+  return response.json();
+}
+
+
+// =========================================================
+// SHAP EXPLANATION
+// =========================================================
+
+export async function explainPrice(carData) {
+
+  const response = await fetch(
+    `${BASE_URL}/explain/`,
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+
+      body: JSON.stringify(carData),
+    }
+  );
+
+
+  if (!response.ok) {
+
+    const errorText =
+      await response.text();
+
+    throw new Error(
+      `Explanation failed: ${errorText}`
+    );
+  }
+
+
+  return response.json();
+}
+
+
+// =========================================================
+// FORECAST
+// =========================================================
+
+export async function forecastPrice(carData) {
+
+  const response = await fetch(
+    `${BASE_URL}/forecast/`,
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+
+      body: JSON.stringify(carData),
+    }
+  );
+
+
+  if (!response.ok) {
+
+    const errorText =
+      await response.text();
+
+    throw new Error(
+      `Forecast failed: ${errorText}`
+    );
+  }
+
 
   return response.json();
 }

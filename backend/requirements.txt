@@ -1,14 +1,35 @@
+# ==========================
+# FastAPI Backend
+# ==========================
 fastapi
-uvicorn
-pandas
-numpy
-scikit-learn
-joblib
-shap
-matplotlib
-xgboost
-lightgbm
-catboost
-scipy
+uvicorn[standard]
 pydantic
 python-multipart
+
+# ==========================
+# Data Processing
+# ==========================
+pandas
+numpy
+scipy
+
+# ==========================
+# Machine Learning
+# ==========================
+scikit-learn
+xgboost
+
+# ==========================
+# Model Serialization
+# ==========================
+joblib
+
+# ==========================
+# Explainable AI
+# ==========================
+shap
+
+# ==========================
+# Visualization
+# ==========================
+matplotlib
