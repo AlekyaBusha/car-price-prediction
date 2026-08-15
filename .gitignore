@@ -65,39 +65,4 @@ htmlcov/
 *.tmp
 *.temp
 
-# ==========================
-# Python cache
-# ==========================
-.mypy_cache/
-.ruff_cache/
-
-# ==========================
-# Large ML Models
-# ==========================
-
-# Old Random Forest model
-backend/models/best_model.pkl
-
-# Old SHAP explainer
-backend/models/shap_explainer.pkl
-
-# Other large model formats
-backend/models/*.joblib
-backend/models/*.h5
-backend/models/*.pt
-backend/models/*.onnx
-
-# ==========================
-# Datasets
-# ==========================
-
-# Raw datasets
-data/raw/
-
-# Large processed datasets
-data/processed/*.csv
-
-# Downloaded archives
-*.zip
-*.rar
-*.7z
+# Large ML model files
