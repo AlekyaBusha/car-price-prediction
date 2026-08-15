@@ -72,3 +72,5 @@ htmlcov/
 *.temp
 
 backend/models/*.pkl
+# Large ML model files
+models/*.pkl
