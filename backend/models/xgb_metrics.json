@@ -1,0 +1,10 @@
+{
+    "model": "XGBRegressor",
+    "n_estimators": 300,
+    "max_depth": 6,
+    "learning_rate": 0.05,
+    "subsample": 0.8,
+    "colsample_bytree": 0.8,
+    "MAE": 84670.3125,
+    "R2": 0.9481972455978394
+}
