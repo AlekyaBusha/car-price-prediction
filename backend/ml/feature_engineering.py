@@ -26,21 +26,60 @@ def add_model_frequency(df: pd.DataFrame, freq_map: dict = None) -> pd.DataFrame
     return df, freq_map
 
 
-def encode_categoricals(df: pd.DataFrame, reference_columns: list = None) -> pd.DataFrame:
+def encode_categoricals(
+    df: pd.DataFrame,
+    reference_columns: list = None
+) -> pd.DataFrame:
     """
-    One-hot encodes brand, seller_type, fuel_type, transmission_type.
-    If reference_columns is provided (i.e. the training feature columns),
-    aligns the output to match exactly — adding missing dummy columns as 0
-    and dropping any extras. This is essential at inference time so a single
-    row doesn't produce a mismatched column set.
+    One-hot encodes categorical columns.
+
+    Ensures all expected categorical columns exist before
+    encoding so inference does not fail if a field is missing.
     """
-    df = pd.get_dummies(df, columns=CATEGORICAL_COLS, drop_first=True)
+
+    df = df.copy()
+
+    # ---------------------------------------------------------
+    # Make sure all categorical columns exist
+    # ---------------------------------------------------------
+
+    for column in CATEGORICAL_COLS:
+
+        if column not in df.columns:
+            df[column] = ""
+
+    # ---------------------------------------------------------
+    # One-hot encoding
+    # ---------------------------------------------------------
+
+    df = pd.get_dummies(
+        df,
+        columns=CATEGORICAL_COLS,
+        drop_first=True
+    )
+
+    # ---------------------------------------------------------
+    # Convert boolean columns to integers
+    # ---------------------------------------------------------
+
+    bool_cols = df.select_dtypes(
+        include="bool"
+    ).columns
+
+    df[bool_cols] = df[bool_cols].astype(int)
+
+    # ---------------------------------------------------------
+    # Match model's training columns
+    # ---------------------------------------------------------
 
     if reference_columns is not None:
-        df = df.reindex(columns=reference_columns, fill_value=0)
+
+        df = df.reindex(
+            columns=reference_columns,
+            fill_value=0
+        )
 
     return df
-
 
 def engineer_features(df: pd.DataFrame, freq_map: dict = None, reference_columns: list = None):
     """

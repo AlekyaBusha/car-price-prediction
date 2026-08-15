@@ -4,13 +4,14 @@ backend/api/routers/explain.py
 Explainability API
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from backend.api.schemas import CarInput
 from backend.ml.feature_engineering import engineer_features
 from backend.ml.forecast_engine import build_car_row
 from backend.ml.model_loader import loader
 from backend.services.explain_service import explain_service
+
 
 router = APIRouter(
     prefix="/explain",
@@ -21,20 +22,45 @@ router = APIRouter(
 @router.post("/")
 def explain(car: CarInput):
 
-    car_data = car.model_dump(exclude_none=True)
+    try:
 
-    row_df = build_car_row(car_data)
+        # IMPORTANT:
+        # Use the same model_dump() behavior as /predict/
+        car_data = car.model_dump()
 
-    encoded_df, _ = engineer_features(
-        row_df,
-        freq_map=loader.freq_map,
-        reference_columns=loader.reference_columns
-    )
+        # Convert input into DataFrame
+        row_df = build_car_row(car_data)
 
-    explanation = explain_service.explain(encoded_df)
+        # Apply exactly the same feature engineering
+        # used by the prediction endpoint
+        encoded_df, _ = engineer_features(
+            row_df,
+            freq_map=loader.freq_map,
+            reference_columns=loader.reference_columns
+        )
 
-    return {
-        "success": True,
-        "prediction": float(loader.model.predict(encoded_df)[0]),
-        "top_features": explanation
-    }
+        # Generate SHAP explanation
+        explanation = explain_service.explain(
+            encoded_df
+        )
+
+        # Generate prediction using the SAME encoded row
+        predicted_price = loader.model.predict(
+            encoded_df
+        )[0]
+
+        return {
+            "success": True,
+            "prediction": round(
+                float(predicted_price),
+                2
+            ),
+            "top_features": explanation
+        }
+
+    except Exception as e:
+
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )

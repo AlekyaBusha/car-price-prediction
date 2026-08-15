@@ -19,7 +19,7 @@ __pycache__/
 # ==========================
 # Machine Learning Models
 # ==========================
-backend/models/*.pkl
+# backend/models/*.pkl
 backend/models/*.joblib
 backend/models/*.h5
 backend/models/*.pt
@@ -71,4 +71,4 @@ htmlcov/
 *.tmp
 *.temp
 
-backend/models/*.pkl
+# backend/models/*.pkl

@@ -1,12 +1,13 @@
 """
 backend/api/routers/dropdown.py
 
-APIs for loading dropdown values.
+APIs for dynamic dependent dropdowns.
 """
 
 from fastapi import APIRouter
 
 from backend.services.dropdown_service import dropdown_service
+
 
 router = APIRouter(
     prefix="/dropdown",
@@ -14,57 +15,139 @@ router = APIRouter(
 )
 
 
+# ==========================================================
+# Brands
+# ==========================================================
+
 @router.get("/brands")
 def get_brands():
+
     return {
         "brands": dropdown_service.get_brands()
     }
 
 
+# ==========================================================
+# Models
+# ==========================================================
+
 @router.get("/models/{brand}")
 def get_models(brand: str):
+
     return {
         "models": dropdown_service.get_models(brand)
     }
 
 
-@router.get("/fuel-types")
-def get_fuel_types():
+# ==========================================================
+# Fuel Types
+# ==========================================================
+
+@router.get("/fuel-types/{brand}/{model}")
+def get_fuel_types(
+    brand: str,
+    model: str
+):
+
     return {
-        "fuel_types": dropdown_service.get_fuel_types()
+        "fuel_types":
+            dropdown_service.get_fuel_types(
+                brand,
+                model
+            )
     }
 
 
-@router.get("/transmissions")
-def get_transmissions():
+# ==========================================================
+# Transmissions
+# ==========================================================
+
+@router.get("/transmissions/{brand}/{model}")
+def get_transmissions(
+    brand: str,
+    model: str
+):
+
     return {
-        "transmission_types": dropdown_service.get_transmission_types()
+        "transmission_types":
+            dropdown_service.get_transmission_types(
+                brand,
+                model
+            )
     }
 
 
-@router.get("/seller-types")
-def get_seller_types():
+# ==========================================================
+# Seller Types
+# ==========================================================
+
+@router.get("/seller-types/{brand}/{model}")
+def get_seller_types(
+    brand: str,
+    model: str
+):
+
     return {
-        "seller_types": dropdown_service.get_seller_types()
+        "seller_types":
+            dropdown_service.get_seller_types(
+                brand,
+                model
+            )
     }
 
 
-@router.get("/engines")
-def get_engines():
+# ==========================================================
+# Engines
+# ==========================================================
+
+@router.get("/engines/{brand}/{model}")
+def get_engines(
+    brand: str,
+    model: str
+):
+
     return {
-        "engines": dropdown_service.get_engines()
+        "engines":
+            dropdown_service.get_engines(
+                brand,
+                model
+            )
     }
 
 
-@router.get("/seats")
-def get_seats():
+# ==========================================================
+# Max Powers
+# ==========================================================
+
+@router.get("/max-powers/{brand}/{model}")
+def get_max_powers(
+    brand: str,
+    model: str
+):
+
     return {
-        "seats": dropdown_service.get_seats()
+        "max_powers":
+            dropdown_service.get_max_powers(
+                brand,
+                model
+            )
     }
 
 
-@router.get("/max-powers")
-def get_max_powers():
+# ==========================================================
+# Seats
+# ==========================================================
+
+@router.get("/seats/{brand}/{model}")
+def get_seats(
+    brand: str,
+    model: str
+):
+
     return {
-        "max_powers": dropdown_service.get_max_powers()
+        "seats":
+            dropdown_service.get_seats(
+                brand,
+                model
+            )
     }
