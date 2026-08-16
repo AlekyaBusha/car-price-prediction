@@ -5,3 +5,48 @@ html {
 body {
   margin: 0;
 }
+
+/* Dark theme variables */
+:root {
+  --bg: #0b1220;
+  --surface: #0f1724;
+  --card-bg: #0e1722;
+  --muted-bg: #111827;
+  --panel-bg: #0b1220;
+  --text: #e6eef8;
+  --muted-text: #9aa6b2;
+  --accent: #22c55e;
+  --primary: #2563eb;
+  --border: rgba(255,255,255,0.06);
+  --card-border: rgba(255,255,255,0.04);
+  --danger-bg: #3b0b0b;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.muted {
+  color: var(--muted-text);
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  border: none;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--card-border);
+}

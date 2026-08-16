@@ -6,6 +6,7 @@ Prediction API Router
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+from typing import Optional
 
 from backend.api.schemas import (
     CarInput,
@@ -37,6 +38,9 @@ class VariantPredictionInput(BaseModel):
     model: str
     vehicle_age: float
     km_driven: float
+    mileage: float
+    engine: Optional[float] = None
+    seats: Optional[float] = None
 
 
 # ==========================================================
@@ -123,7 +127,10 @@ def predict_variants(
                 brand=car.brand,
                 model=car.model,
                 vehicle_age=car.vehicle_age,
-                km_driven=car.km_driven
+                km_driven=car.km_driven,
+                mileage=car.mileage,
+                engine=car.engine,
+                seats=car.seats,
             )
         )
 

@@ -204,7 +204,10 @@ class VariantPredictionService:
         brand,
         model,
         vehicle_age,
-        km_driven
+        km_driven,
+        mileage=5,
+        engine=None,
+        seats=None,
     ):
 
         # --------------------------------------------------
@@ -215,6 +218,56 @@ class VariantPredictionService:
             brand,
             model
         )
+
+        if model_df.empty:
+
+            return {
+                "success": False,
+                "message": (
+                    f"No data found for "
+                    f"{brand} {model}"
+                ),
+                "variants": []
+            }
+
+        # --------------------------------------------------
+        # Apply optional filters: engine (displacement) and seats
+        # If engine is provided (in CC), filter by approximate
+        # liter displacement contained in engine_type strings.
+        # If seats is provided, filter by seats numeric value.
+        # --------------------------------------------------
+
+        if engine is not None:
+
+            try:
+
+                liters = round(float(engine) / 1000.0, 1)
+
+                liters_str = str(liters)
+
+                model_df = model_df[
+                    model_df["engine_type"].astype(str).str.lower().str.contains(liters_str)
+                ].copy()
+
+            except Exception:
+
+                # If parsing fails, leave unfiltered
+                pass
+
+        if seats is not None:
+
+            try:
+
+                seats_val = float(seats)
+
+                model_df = model_df[
+                    pd.to_numeric(model_df["seats"], errors="coerce") == seats_val
+                ].copy()
+
+            except Exception:
+
+                # If parsing fails, leave unfiltered
+                pass
 
         if model_df.empty:
 
@@ -274,17 +327,22 @@ class VariantPredictionService:
                     km_driven
                 ),
 
+                # Seats: use provided seats if present, otherwise use variant value
                 "seats": float(
-                    variant["seats"]
+                    seats if seats is not None else variant["seats"]
                 ),
 
                 "max_power": float(
                     variant["max_power"]
                 ),
 
+                # Engine type remains the variant's engine_type (categorical)
                 "engine_type": variant[
                     "engine_type"
                 ],
+
+                # Mileage is included as an input numeric feature (optional)
+                "mileage": float(mileage),
             }
 
             # ----------------------------------------------
@@ -337,7 +395,7 @@ class VariantPredictionService:
                         variant["engine_type"],
 
                     "seats":
-                        variant["seats"],
+                        (seats if seats is not None else variant["seats"]),
 
                     "max_power":
                         variant["max_power"],
@@ -367,6 +425,8 @@ class VariantPredictionService:
             "vehicle_age": vehicle_age,
 
             "km_driven": km_driven,
+
+            "mileage": mileage,
 
             "count": len(results),
 

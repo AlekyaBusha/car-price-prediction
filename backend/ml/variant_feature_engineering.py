@@ -30,6 +30,7 @@ NUMERICAL_COLUMNS = [
     "year",
     "vehicle_age",
     "km_driven",
+    "mileage",
     "seats",
     "max_power",
 ]

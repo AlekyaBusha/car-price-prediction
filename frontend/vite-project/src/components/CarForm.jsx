@@ -10,6 +10,8 @@ import {
   fetchSeats,
   fetchMaxPowers,
   predictPrice,
+  predictVariants,
+  predictOptions,
   explainPrice,
   forecastPrice,
 } from "../services/api";
@@ -48,14 +50,14 @@ function CarForm({ onPrediction }) {
     engine: "",
     max_power: "",
     seats: "",
-    vehicle_age: "",
-    km_driven: "",
-    mileage: "",
+    vehicle_age: 0,
+    km_driven: 0,
+    mileage: 5,
   });
 
 
   // =========================================================
-  // Result state
+  // Prediction state
   // =========================================================
 
   const [prediction, setPrediction] = useState(null);
@@ -63,6 +65,32 @@ function CarForm({ onPrediction }) {
   const [loading, setLoading] = useState(false);
 
   const [error, setError] = useState("");
+
+
+  // =========================================================
+  // Variant state
+  // =========================================================
+
+  const [variants, setVariants] = useState([]);
+
+  const [variantLoading, setVariantLoading] =
+    useState(false);
+
+  const [variantError, setVariantError] =
+    useState("");
+
+  // =========================================================
+  // Suggestion state (AI Suggestions)
+  // =========================================================
+
+  const [suggestions, setSuggestions] = useState({
+    seats: [],
+    engines: [],
+    sellers: [],
+  });
+
+  const [suggestionLoading, setSuggestionLoading] =
+    useState(false);
 
 
   // =========================================================
@@ -119,14 +147,12 @@ function CarForm({ onPrediction }) {
 
       }
 
-
       try {
 
         const data =
           await fetchModels(
             formData.brand
           );
-
 
         setModels(
           Array.isArray(data)
@@ -153,7 +179,7 @@ function CarForm({ onPrediction }) {
 
 
   // =========================================================
-  // Load all options based on Brand + Model
+  // Load options based on Brand + Model
   // =========================================================
 
   useEffect(() => {
@@ -175,7 +201,6 @@ function CarForm({ onPrediction }) {
         return;
 
       }
-
 
       try {
 
@@ -225,26 +250,21 @@ function CarForm({ onPrediction }) {
           fuelData?.fuel_types || []
         );
 
-
         setTransmissions(
           transmissionData?.transmission_types || []
         );
-
 
         setSellerTypes(
           sellerData?.seller_types || []
         );
 
-
         setEngines(
           engineData?.engines || []
         );
 
-
         setMaxPowers(
           maxPowerData?.max_powers || []
         );
-
 
         setSeats(
           seatsData?.seats || []
@@ -256,8 +276,12 @@ function CarForm({ onPrediction }) {
         );
 
         console.log({
-          brand: formData.brand,
-          model: formData.model,
+
+          brand:
+            formData.brand,
+
+          model:
+            formData.model,
 
           fuelTypes:
             fuelData?.fuel_types || [],
@@ -276,6 +300,7 @@ function CarForm({ onPrediction }) {
 
           seats:
             seatsData?.seats || [],
+
         });
 
       } catch (err) {
@@ -328,7 +353,7 @@ function CarForm({ onPrediction }) {
 
 
   // =========================================================
-  // Prediction
+  // Normal price prediction
   // =========================================================
 
   async function handlePredict(event) {
@@ -349,13 +374,11 @@ function CarForm({ onPrediction }) {
       !formData.model ||
       !formData.fuel_type ||
       !formData.transmission_type ||
-      !formData.seller_type ||
-      !formData.vehicle_age ||
-      !formData.km_driven
+      !formData.seller_type
     ) {
 
       setError(
-        "Please fill Brand, Model, Fuel Type, Transmission, Seller Type, Vehicle Age and KM Driven."
+        "Please fill Brand, Model, Fuel Type, Transmission and Seller Type."
       );
 
       return;
@@ -369,7 +392,7 @@ function CarForm({ onPrediction }) {
 
 
       // =====================================================
-      // ONE COMMON PAYLOAD
+      // Prediction payload
       // =====================================================
 
       const payload = {
@@ -390,50 +413,52 @@ function CarForm({ onPrediction }) {
           formData.seller_type,
 
 
+        // Optional
         engine:
           formData.engine !== ""
             ? Number(formData.engine)
             : null,
 
 
+        // Optional
         max_power:
           formData.max_power !== ""
             ? Number(formData.max_power)
             : null,
 
 
+        // Optional
         seats:
           formData.seats !== ""
             ? Number(formData.seats)
             : null,
 
 
+        // Default 0
         vehicle_age:
           formData.vehicle_age !== ""
             ? Number(formData.vehicle_age)
-            : null,
+            : 0,
 
 
+        // Default 0
         km_driven:
           formData.km_driven !== ""
             ? Number(formData.km_driven)
-            : null,
+            : 0,
 
 
+        // Default 5
         mileage:
           formData.mileage !== ""
             ? Number(formData.mileage)
-            : null,
+            : 5,
 
       };
 
 
       console.log(
-        "================================="
-      );
-
-      console.log(
-        "Sending prediction request:"
+        "Prediction request:"
       );
 
       console.log(payload);
@@ -465,18 +490,10 @@ function CarForm({ onPrediction }) {
 
       try {
 
-        console.log(
-          "Sending SHAP request:"
-        );
-
-        console.log(payload);
-
-
         const explanationResult =
           await explainPrice(
             payload
           );
-
 
         console.log(
           "SHAP explanation response:"
@@ -485,7 +502,6 @@ function CarForm({ onPrediction }) {
         console.log(
           explanationResult
         );
-
 
         explanation =
           explanationResult;
@@ -496,8 +512,6 @@ function CarForm({ onPrediction }) {
           "SHAP explanation error:",
           err
         );
-
-        explanation = null;
 
       }
 
@@ -511,18 +525,10 @@ function CarForm({ onPrediction }) {
 
       try {
 
-        console.log(
-          "Sending forecast request:"
-        );
-
-        console.log(payload);
-
-
         const forecastResult =
           await forecastPrice(
             payload
           );
-
 
         console.log(
           "Forecast response:"
@@ -536,112 +542,12 @@ function CarForm({ onPrediction }) {
         forecast =
           forecastResult?.forecast || [];
 
-
       } catch (err) {
 
         console.error(
           "Forecast error:",
           err
         );
-
-        forecast = [];
-
-      }
-
-
-      // =====================================================
-      // Check prediction vs SHAP
-      // =====================================================
-
-      if (
-        explanation &&
-        explanation.prediction !== undefined
-      ) {
-
-        console.log(
-          "Prediction price:"
-        );
-
-        console.log(
-          result.predicted_price
-        );
-
-
-        console.log(
-          "SHAP prediction:"
-        );
-
-        console.log(
-          explanation.prediction
-        );
-
-
-        console.log(
-          "SHAP difference:"
-        );
-
-        console.log(
-          Number(
-            explanation.prediction
-          ) -
-          Number(
-            result.predicted_price
-          )
-        );
-
-      }
-
-
-      // =====================================================
-      // Check prediction vs forecast
-      // =====================================================
-
-      if (
-        forecast &&
-        forecast.length > 0
-      ) {
-
-        const currentForecast =
-          forecast.find(
-            (item) =>
-              Number(item.months) === 0
-          );
-
-
-        if (currentForecast) {
-
-          console.log(
-            "Current prediction:"
-          );
-
-          console.log(
-            result.predicted_price
-          );
-
-
-          console.log(
-            "Forecast month 0:"
-          );
-
-          console.log(
-            currentForecast.price
-          );
-
-
-          console.log(
-            "Difference between prediction and forecast:"
-          );
-
-          console.log(
-            Number(
-              currentForecast.price
-            ) -
-            Number(
-              result.predicted_price
-            )
-          );
-
-        }
 
       }
 
@@ -666,26 +572,55 @@ function CarForm({ onPrediction }) {
       };
 
 
-      console.log(
-        "Final dashboard result:"
-      );
-
-      console.log(
-        finalResult
-      );
-
-
       setPrediction(
         finalResult
       );
 
 
-      // Send result to Dashboard
       if (onPrediction) {
 
         onPrediction(
           finalResult
         );
+
+      }
+
+      // If engine, max_power and seats not provided, fetch AI suggestions
+      if (
+        (formData.engine === "" || formData.engine === null) &&
+        (formData.max_power === "" || formData.max_power === null) &&
+        (formData.seats === "" || formData.seats === null)
+      ) {
+
+        const suggestionPayload = {
+          brand: formData.brand,
+          model: formData.model,
+
+          // CarInput required fields: use selected or fallback to first available option or 'unknown'
+          fuel_type:
+            formData.fuel_type || (fuelTypes && fuelTypes[0]) || "unknown",
+
+          transmission_type:
+            formData.transmission_type || (transmissions && transmissions[0]) || "unknown",
+
+          seller_type:
+            formData.seller_type || (sellerTypes && sellerTypes[0]) || "unknown",
+
+          vehicle_age:
+            formData.vehicle_age !== ""
+              ? Number(formData.vehicle_age)
+              : 0,
+          km_driven:
+            formData.km_driven !== ""
+              ? Number(formData.km_driven)
+              : 0,
+          mileage:
+            formData.mileage !== ""
+              ? Number(formData.mileage)
+              : 5,
+        };
+
+        fetchSuggestions(suggestionPayload);
 
       }
 
@@ -712,6 +647,231 @@ function CarForm({ onPrediction }) {
 
 
   // =========================================================
+  // Fetch AI Suggestions when engine,max_power,seats are not selected
+  // =========================================================
+
+  async function fetchSuggestions(payload) {
+
+    try {
+
+      setSuggestionLoading(true);
+
+      // Call backend predict/options endpoint
+      const optResult = await predictOptions(payload);
+
+      const options = optResult?.options || [];
+
+      // Seats suggestions: pick highest predicted price per seats
+      const seatsMap = {};
+
+      options.forEach((o) => {
+        const s = o.seats;
+        if (!seatsMap[s] || o.predicted_price > seatsMap[s].predicted_price) {
+          seatsMap[s] = o;
+        }
+      });
+
+      const seats = Object.values(seatsMap).sort((a,b)=>a.seats-b.seats);
+
+      // Engine suggestions: highest predicted price per engine
+      const engineMap = {};
+
+      options.forEach((o) => {
+        const e = o.engine;
+        if (!engineMap[e] || o.predicted_price > engineMap[e].predicted_price) {
+          engineMap[e] = o;
+        }
+      });
+
+      const engines = Object.values(engineMap).sort((a,b)=>Number(a.engine)-Number(b.engine));
+
+      // Seller suggestions: use existing sellerTypes and predictPrice for each
+      const sellers = [];
+
+      for (const seller of sellerTypes.slice(0,3)) {
+
+        try {
+          const sellerPayload = { ...payload, seller_type: seller };
+
+          const r = await predictPrice(sellerPayload);
+
+          sellers.push({ seller_type: seller, predicted_price: r.predicted_price });
+
+        } catch (err) {
+          // ignore per-seller failures
+        }
+
+      }
+
+      setSuggestions({ seats, engines, sellers });
+
+    } catch (err) {
+
+      console.error('Suggestion error', err);
+
+    } finally {
+
+      setSuggestionLoading(false);
+
+    }
+
+  }
+
+
+  // =========================================================
+  // VARIANT PREDICTION
+  // =========================================================
+
+  async function handleVariantPrediction() {
+
+    setVariantError("");
+
+    setVariants([]);
+
+
+    // -------------------------------------------------------
+    // Only Brand + Model are required
+    // -------------------------------------------------------
+
+    if (
+      !formData.brand ||
+      !formData.model
+    ) {
+
+      setVariantError(
+        "Please select Brand and Model first."
+      );
+
+      return;
+
+    }
+
+
+    try {
+
+      setVariantLoading(true);
+
+
+      // -----------------------------------------------------
+      // Variant payload
+      // -----------------------------------------------------
+
+      const payload = {
+
+        brand:
+          formData.brand,
+
+        model:
+          formData.model,
+
+        vehicle_age:
+          formData.vehicle_age !== ""
+            ? Number(formData.vehicle_age)
+            : 0,
+
+        km_driven:
+          formData.km_driven !== ""
+            ? Number(formData.km_driven)
+            : 0,
+
+        mileage:
+          formData.mileage !== ""
+            ? Number(formData.mileage)
+            : 5,
+        // Optional engine and seats for variant comparison
+        engine:
+          formData.engine !== ""
+            ? Number(formData.engine)
+            : null,
+
+        seats:
+          formData.seats !== ""
+            ? Number(formData.seats)
+            : null,
+
+      };
+
+
+      console.log(
+        "================================="
+      );
+
+      console.log(
+        "Variant prediction request:"
+      );
+
+      console.log(payload);
+
+
+      // -----------------------------------------------------
+      // API request
+      // -----------------------------------------------------
+
+      const result =
+        await predictVariants(
+          payload
+        );
+
+
+      console.log(
+        "Variant prediction response:"
+      );
+
+      console.log(result);
+
+
+      // -----------------------------------------------------
+      // Store variants
+      // -----------------------------------------------------
+
+      const variantResults =
+        result?.variants ||
+        result?.options ||
+        [];
+
+
+      setVariants(
+        variantResults
+      );
+
+
+      // -----------------------------------------------------
+      // No results
+      // -----------------------------------------------------
+
+      if (
+        variantResults.length === 0
+      ) {
+
+        setVariantError(
+          "No variants were found for this Brand and Model."
+        );
+
+      }
+
+    } catch (err) {
+
+      console.error(
+        "Variant prediction error:",
+        err
+      );
+
+
+      setVariantError(
+        err.message ||
+        "Failed to predict variants."
+      );
+
+    } finally {
+
+      setVariantLoading(false);
+
+    }
+
+  }
+
+
+  // =========================================================
   // Reset
   // =========================================================
 
@@ -727,9 +887,10 @@ function CarForm({ onPrediction }) {
       engine: "",
       max_power: "",
       seats: "",
-      vehicle_age: "",
-      km_driven: "",
-      mileage: "",
+
+      vehicle_age: 0,
+      km_driven: 0,
+      mileage: 5,
 
     });
 
@@ -743,7 +904,12 @@ function CarForm({ onPrediction }) {
     setMaxPowers([]);
     setSeats([]);
 
+
     setPrediction(null);
+
+    setVariants([]);
+
+    setVariantError("");
 
     setError("");
 
@@ -758,11 +924,12 @@ function CarForm({ onPrediction }) {
 
     <div
       style={{
-        background: "white",
+        background: "var(--card-bg)",
         padding: "40px",
         borderRadius: "16px",
         boxShadow:
-          "0 6px 20px rgba(0,0,0,.08)",
+          "0 10px 30px rgba(2,6,23,0.6)",
+        color: "var(--text)",
       }}
     >
 
@@ -773,7 +940,7 @@ function CarForm({ onPrediction }) {
 
       <p
         style={{
-          color: "#666",
+          color: "var(--muted-text)",
           marginTop: "8px",
         }}
       >
@@ -838,6 +1005,10 @@ function CarForm({ onPrediction }) {
             setMaxPowers([]);
             setSeats([]);
 
+            setVariants([]);
+
+            setVariantError("");
+
           }}
         />
 
@@ -894,6 +1065,10 @@ function CarForm({ onPrediction }) {
             setEngines([]);
             setMaxPowers([]);
             setSeats([]);
+
+            setVariants([]);
+
+            setVariantError("");
 
           }}
         />
@@ -1031,7 +1206,7 @@ function CarForm({ onPrediction }) {
 
         {/* =================================================
             MAX POWER
-        ================================================= */}
+        ================================================== */}
 
         <SearchableDropdown
           label="Max Power"
@@ -1064,7 +1239,7 @@ function CarForm({ onPrediction }) {
 
         {/* =================================================
             SEATS
-        ================================================= */}
+        ================================================== */}
 
         <SearchableDropdown
           label="Seats"
@@ -1097,103 +1272,157 @@ function CarForm({ onPrediction }) {
 
         {/* =================================================
             VEHICLE AGE
-        ================================================= */}
+        ================================================== */}
 
-        <div style={{ marginBottom: "24px" }}>
-  <label
-    style={{
-      display: "flex",
-      justifyContent: "space-between",
-      marginBottom: "8px",
-      fontWeight: "600",
-    }}
-  >
-    <span>Vehicle Age</span>
-    <span>{formData.vehicle_age || 0} years</span>
-  </label>
+        <div
+          style={{
+            marginBottom: "24px",
+          }}
+        >
 
-  <input
-    type="range"
-    name="vehicle_age"
-    min="0"
-    max="20"
-    step="1"
-    value={formData.vehicle_age || 0}
-    onChange={handleChange}
-    style={{
-      width: "100%",
-      cursor: "pointer",
-    }}
-  />
-</div>
+          <label
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: "8px",
+              fontWeight: "600",
+            }}
+          >
+
+            <span>
+              Vehicle Age
+            </span>
+
+            <span>
+              {Number(
+                formData.vehicle_age || 0
+              )} years
+            </span>
+
+          </label>
+
+
+          <input
+            type="range"
+            name="vehicle_age"
+            min="0"
+            max="20"
+            step="1"
+            value={
+              formData.vehicle_age || 0
+            }
+            onChange={handleChange}
+            style={{
+              width: "100%",
+              cursor: "pointer",
+            }}
+          />
+
+        </div>
 
 
         {/* =================================================
             KM DRIVEN
         ================================================== */}
 
-        <div style={{ marginBottom: "24px" }}>
-  <label
-    style={{
-      display: "flex",
-      justifyContent: "space-between",
-      marginBottom: "8px",
-      fontWeight: "600",
-    }}
-  >
-    <span>KM Driven</span>
-    <span>
-      {Number(formData.km_driven || 0).toLocaleString()} km
-    </span>
-  </label>
+        <div
+          style={{
+            marginBottom: "24px",
+          }}
+        >
 
-  <input
-    type="range"
-    name="km_driven"
-    min="0"
-    max="300000"
-    step="1000"
-    value={formData.km_driven || 0}
-    onChange={handleChange}
-    style={{
-      width: "100%",
-      cursor: "pointer",
-    }}
-  />
-</div>
+          <label
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: "8px",
+              fontWeight: "600",
+            }}
+          >
+
+            <span>
+              KM Driven
+            </span>
+
+            <span>
+              {Number(
+                formData.km_driven || 0
+              ).toLocaleString()} km
+            </span>
+
+          </label>
+
+
+          <input
+            type="range"
+            name="km_driven"
+            min="0"
+            max="300000"
+            step="1000"
+            value={
+              formData.km_driven || 0
+            }
+            onChange={handleChange}
+            style={{
+              width: "100%",
+              cursor: "pointer",
+            }}
+          />
+
+        </div>
 
 
         {/* =================================================
             MILEAGE
         ================================================== */}
 
-        <div style={{ marginBottom: "24px" }}>
-  <label
-    style={{
-      display: "flex",
-      justifyContent: "space-between",
-      marginBottom: "8px",
-      fontWeight: "600",
-    }}
-  >
-    <span>Mileage</span>
-    <span>{formData.mileage || 0} km/l</span>
-  </label>
+        <div
+          style={{
+            marginBottom: "24px",
+          }}
+        >
 
-  <input
-    type="range"
-    name="mileage"
-    min="5"
-    max="40"
-    step="0.1"
-    value={formData.mileage || 5}
-    onChange={handleChange}
-    style={{
-      width: "100%",
-      cursor: "pointer",
-    }}
-  />
-</div>
+          <label
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: "8px",
+              fontWeight: "600",
+            }}
+          >
+
+            <span>
+              Mileage
+            </span>
+
+            <span>
+              {Number(
+                formData.mileage || 5
+              ).toFixed(1)} km/l
+            </span>
+
+          </label>
+
+
+          <input
+            type="range"
+            name="mileage"
+            min="5"
+            max="40"
+            step="0.1"
+            value={
+              formData.mileage || 5
+            }
+            onChange={handleChange}
+            style={{
+              width: "100%",
+              cursor: "pointer",
+            }}
+          />
+
+        </div>
+
+
         {/* =================================================
             ERROR
         ================================================== */}
@@ -1202,33 +1431,29 @@ function CarForm({ onPrediction }) {
 
           <div
             style={{
-              marginTop: "20px",
-              padding: "12px",
-              borderRadius: "8px",
-              background:
-                "#fee2e2",
-              color:
-                "#b91c1c",
-            }}
+                marginTop: "20px",
+                padding: "12px",
+                borderRadius: "8px",
+                background: "var(--danger-bg)",
+                color: "#ffb4b4",
+              }}
           >
-
             {error}
-
           </div>
 
         )}
 
 
         {/* =================================================
-            BUTTONS
+            MAIN BUTTONS
         ================================================== */}
 
         <div
-          style={{
-            display: "flex",
-            gap: "12px",
-            marginTop: "30px",
-          }}
+            style={{
+              display: "flex",
+              gap: "12px",
+              marginTop: "30px",
+            }}
         >
 
           <button
@@ -1262,20 +1487,16 @@ function CarForm({ onPrediction }) {
 
           <button
             type="button"
-            onClick={
-              handleReset
-            }
+            onClick={handleReset}
             style={{
-              padding:
-                "14px 22px",
+              padding: "14px 22px",
               border:
-                "1px solid #d1d5db",
+                "1px solid var(--border)",
               borderRadius: "8px",
-              background:
-                "white",
+              background: "transparent",
               fontSize: "16px",
-              cursor:
-                "pointer",
+              color: "var(--text)",
+              cursor: "pointer",
             }}
           >
 
@@ -1285,13 +1506,490 @@ function CarForm({ onPrediction }) {
 
         </div>
 
+
+        {/* =================================================
+            VARIANT BUTTON
+        ================================================== */}
+
+        <div
+          style={{
+            marginTop: "16px",
+          }}
+        >
+
+          <button
+            type="button"
+            onClick={
+              handleVariantPrediction
+            }
+            disabled={
+              variantLoading ||
+              !formData.brand ||
+              !formData.model
+            }
+            style={{
+              width: "100%",
+              padding: "14px",
+              border: "none",
+              borderRadius: "8px",
+              background:
+                variantLoading ||
+                !formData.brand ||
+                !formData.model
+                  ? "#374151"
+                  : "var(--surface)",
+              color: "white",
+              fontSize: "16px",
+              fontWeight: "bold",
+              cursor:
+                variantLoading ||
+                !formData.brand ||
+                !formData.model
+                  ? "not-allowed"
+                  : "pointer",
+            }}
+          >
+
+            {variantLoading
+              ? "Finding Variants..."
+              : "🔍 Compare All Variants"}
+
+          </button>
+
+        </div>
+
       </form>
 
 
       {/* =====================================================
-          LOCAL PREDICTION
-          Dashboard also receives the same result through
-          onPrediction().
+          VARIANT ERROR
+      ====================================================== */}
+
+      {variantError && (
+
+        <div
+          style={{
+            marginTop: "20px",
+            padding: "12px",
+            borderRadius: "8px",
+            background: "var(--danger-bg)",
+            color: "#ffb4b4",
+          }}
+        >
+
+          {variantError}
+
+        </div>
+
+      )}
+
+
+      {/* =====================================================
+          AI SUGGESTIONS
+      ====================================================== */}
+
+      {(formData.brand && formData.model && (formData.engine === "" && formData.max_power === "" && formData.seats === "")) && (
+
+        <div
+          style={{
+            marginTop: "24px",
+            padding: "18px",
+            borderRadius: "12px",
+            background: "var(--card-bg)",
+            border: "1px solid var(--card-border)",
+          }}
+        >
+
+          <h3 style={{ margin: 0 }}>AI Suggestions</h3>
+
+          <p style={{ color: "#666", marginTop: "6px" }}>
+            We noticed some missing details. Here are estimated prices for different options.
+          </p>
+
+          {suggestionLoading && (
+            <div style={{ marginTop: "12px" }}>Loading suggestions...</div>
+          )}
+
+          {!suggestionLoading && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px", marginTop: 12 }}>
+
+              {/* Seats */}
+              <div style={{ padding: 12, borderRadius: 10, background: "var(--muted-bg)" }}>
+                <strong>Seats not provided</strong>
+                <div style={{ marginTop: 10 }}>
+                  {(suggestions.seats.length === 0) ? (
+                    <div style={{ color: '#666', marginTop: 8 }}>Estimated prices for seats will appear after predicting.</div>
+                  ) : (
+                    suggestions.seats.map((s, idx) => (
+                      <div key={`seat-${idx}`} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0" }}>
+                        <div>{s.seats} Seats</div>
+                        <div>₹ {Number(s.predicted_price).toLocaleString("en-IN", { maximumFractionDigits: 0 })}</div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Engines */}
+              <div style={{ padding: 12, borderRadius: 10, background: "var(--muted-bg)" }}>
+                <strong>Engine not provided</strong>
+                <div style={{ marginTop: 10 }}>
+                  {(suggestions.engines.length === 0) ? (
+                    <div style={{ color: '#666', marginTop: 8 }}>Estimated prices for engines will appear after predicting.</div>
+                  ) : (
+                    suggestions.engines.map((e, idx) => (
+                      <div key={`eng-${idx}`} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0" }}>
+                        <div>{e.engine} CC</div>
+                        <div>₹ {Number(e.predicted_price).toLocaleString("en-IN", { maximumFractionDigits: 0 })}</div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Seller types */}
+              <div style={{ padding: 12, borderRadius: 10, background: "var(--muted-bg)" }}>
+                <strong>Seller Type not provided</strong>
+                <div style={{ marginTop: 10 }}>
+                  {(suggestions.sellers.length === 0) ? (
+                    <div style={{ color: '#666', marginTop: 8 }}>Estimated prices for seller types will appear after predicting.</div>
+                  ) : (
+                    suggestions.sellers.map((s, idx) => (
+                      <div key={`sell-${idx}`} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0" }}>
+                        <div>{s.seller_type}</div>
+                        <div>₹ {Number(s.predicted_price).toLocaleString("en-IN", { maximumFractionDigits: 0 })}</div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+            </div>
+
+          )}
+
+        </div>
+
+      )}
+
+
+      {/* =====================================================
+          VARIANT RESULTS
+      ====================================================== */}
+
+      {variants.length > 0 && (
+
+        <div
+          style={{
+            marginTop: "30px",
+          }}
+        >
+
+          {/* -------------------------------------------------
+              Header
+          -------------------------------------------------- */}
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent:
+                "space-between",
+              alignItems: "center",
+              marginBottom: "16px",
+            }}
+          >
+
+            <div>
+
+              <h3
+                style={{
+                  margin: 0,
+                }}
+              >
+                🚘 Variant Comparison
+              </h3>
+
+
+              <p
+                style={{
+                  marginTop: "5px",
+                  color: "#666",
+                }}
+              >
+                {variants.length} variants found
+              </p>
+
+            </div>
+
+          </div>
+
+
+          {/* -------------------------------------------------
+              Variant cards
+          -------------------------------------------------- */}
+
+          <div
+            style={{
+              display: "grid",
+              gap: "14px",
+            }}
+          >
+
+            {variants.map(
+              (variant, index) => {
+
+                const variantName =
+                  variant.variant ||
+                  variant.name ||
+                  "Unknown Variant";
+
+
+                const predictedPrice =
+                  variant.predicted_price ??
+                  variant.price ??
+                  0;
+
+
+                return (
+
+                  <div
+                    key={
+                      `${variantName}-${index}`
+                    }
+                    style={{
+                      padding: "18px",
+                      border:
+                        index === 0
+                          ? "2px solid var(--primary)"
+                          : "1px solid var(--card-border)",
+                      borderRadius: "12px",
+                      background: "var(--card-bg)",
+                      boxShadow:
+                        "0 8px 30px rgba(2,6,23,0.6)",
+                    }}
+                  >
+
+                    {/* =====================================
+                        Variant title + price
+                    ====================================== */}
+
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent:
+                          "space-between",
+                        gap: "15px",
+                        alignItems:
+                          "center",
+                      }}
+                    >
+
+                      <div>
+
+                        <h4
+                          style={{
+                            margin: 0,
+                            fontSize: "17px",
+                          }}
+                        >
+                          {variantName}
+                        </h4>
+
+
+                          {index === 0 && (
+
+                          <span
+                            style={{
+                              display:
+                                "inline-block",
+                              marginTop:
+                                "6px",
+                              padding:
+                                "4px 8px",
+                              borderRadius:
+                                "6px",
+                              background:
+                                "rgba(37,99,235,0.12)",
+                              color:
+                                "var(--primary)",
+                              fontSize:
+                                "12px",
+                              fontWeight:
+                                "600",
+                            }}
+                          >
+                            Highest Predicted Price
+                          </span>
+
+                        )}
+
+                      </div>
+
+
+                      <div
+                        style={{
+                          fontSize: "20px",
+                          fontWeight: "bold",
+                          whiteSpace:
+                            "nowrap",
+                        }}
+                      >
+
+                        ₹{" "}
+
+                        {Number(
+                          predictedPrice
+                        ).toLocaleString(
+                          "en-IN"
+                        )}
+
+                      </div>
+
+                    </div>
+
+
+                    {/* =====================================
+                        Specification badges
+                    ====================================== */}
+
+                    <div
+                      style={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: "8px",
+                        marginTop: "14px",
+                      }}
+                    >
+
+                      {variant.fuel_type && (
+
+                        <span
+                          style={{
+                            padding:
+                              "5px 9px",
+                            borderRadius:
+                              "6px",
+                            background:
+                              "var(--muted-bg)",
+                            fontSize:
+                              "13px",
+                            color: "var(--text)",
+                          }}
+                        >
+                          ⛽{" "}
+                          {variant.fuel_type}
+                        </span>
+
+                      )}
+
+
+                      {variant.transmission_type && (
+
+                        <span
+                          style={{
+                            padding:
+                              "5px 9px",
+                            borderRadius:
+                              "6px",
+                            background:
+                              "var(--muted-bg)",
+                            fontSize:
+                              "13px",
+                            color: "var(--text)",
+                          }}
+                        >
+                          ⚙️{" "}
+                          {
+                            variant.transmission_type
+                          }
+                        </span>
+
+                      )}
+
+
+                      {variant.seats !== undefined &&
+                        variant.seats !== null && (
+
+                          <span
+                            style={{
+                              padding:
+                                "5px 9px",
+                              borderRadius:
+                                "6px",
+                              background:
+                                "var(--muted-bg)",
+                              fontSize:
+                                "13px",
+                              color: "var(--text)",
+                            }}
+                          >
+                            🪑{" "}
+                            {variant.seats} seats
+                          </span>
+
+                        )}
+
+
+                      {variant.max_power !== undefined &&
+                        variant.max_power !== null && (
+
+                          <span
+                            style={{
+                              padding:
+                                "5px 9px",
+                              borderRadius:
+                                "6px",
+                              background:
+                                "var(--muted-bg)",
+                              fontSize:
+                                "13px",
+                              color: "var(--text)",
+                            }}
+                          >
+                            ⚡{" "}
+                            {variant.max_power} HP
+                          </span>
+
+                        )}
+
+                    </div>
+
+
+                    {/* =====================================
+                        Engine
+                    ====================================== */}
+
+                    {variant.engine_type && (
+
+                      <div
+                        style={{
+                          marginTop: "10px",
+                          color: "#666",
+                          fontSize: "13px",
+                        }}
+                      >
+                        Engine:{" "}
+                        {variant.engine_type}
+                      </div>
+
+                    )}
+
+                  </div>
+
+                );
+
+              }
+            )}
+
+          </div>
+
+        </div>
+
+      )}
+
+
+      {/* =====================================================
+          NORMAL PREDICTION RESULT
       ====================================================== */}
 
       {prediction && (
@@ -1301,10 +1999,8 @@ function CarForm({ onPrediction }) {
             marginTop: "30px",
             padding: "24px",
             borderRadius: "12px",
-            background:
-              "#f3f4f6",
-            textAlign:
-              "center",
+            background: "#f3f4f6",
+            textAlign: "center",
           }}
         >
 
@@ -1317,8 +2013,7 @@ function CarForm({ onPrediction }) {
             style={{
               marginTop: "10px",
               fontSize: "32px",
-              fontWeight:
-                "bold",
+              fontWeight: "bold",
             }}
           >
 
@@ -1339,8 +2034,100 @@ function CarForm({ onPrediction }) {
               marginTop: "5px",
             }}
           >
+
             Estimated Market Price
+
           </p>
+
+
+          {/* =================================================
+              PRICE RANGE
+          ================================================== */}
+
+          {prediction.price_range && (
+
+            <div
+              style={{
+                marginTop: "18px",
+                display: "flex",
+                justifyContent:
+                  "center",
+                gap: "30px",
+                flexWrap: "wrap",
+              }}
+            >
+
+              <div>
+
+                <div
+                  style={{
+                    fontSize: "12px",
+                    color: "#666",
+                  }}
+                >
+                  Low
+                </div>
+
+                <strong>
+                  ₹{" "}
+                  {Number(
+                    prediction.price_range.low
+                  ).toLocaleString(
+                    "en-IN"
+                  )}
+                </strong>
+
+              </div>
+
+
+              <div>
+
+                <div
+                  style={{
+                    fontSize: "12px",
+                    color: "#666",
+                  }}
+                >
+                  Predicted
+                </div>
+
+                <strong>
+                  ₹{" "}
+                  {Number(
+                    prediction.price_range.predicted
+                  ).toLocaleString(
+                    "en-IN"
+                  )}
+                </strong>
+
+              </div>
+
+
+              <div>
+
+                <div
+                  style={{
+                    fontSize: "12px",
+                    color: "#666",
+                  }}
+                >
+                  High
+                </div>
+
+                <strong>
+                  ₹{" "}
+                  {Number(
+                    prediction.price_range.high
+                  ).toLocaleString(
+                    "en-IN"
+                  )}
+                </strong>
+
+              </div>
+
+            </div>
+
+          )}
 
         </div>
 

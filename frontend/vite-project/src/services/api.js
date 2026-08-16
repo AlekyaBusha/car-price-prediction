@@ -215,3 +215,68 @@ export async function forecastPrice(carData) {
 
   return response.json();
 }
+// =========================================================
+// PREDICTION OPTIONS / SUGGESTIONS
+// =========================================================
+
+export async function predictOptions(carData) {
+
+  const response = await fetch(
+    `${BASE_URL}/predict/options/`,
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+
+      body: JSON.stringify(carData),
+    }
+  );
+
+  if (!response.ok) {
+
+    const errorText =
+      await response.text();
+
+    throw new Error(
+      `Prediction options failed: ${errorText}`
+    );
+  }
+
+  return response.json();
+
+}
+// =========================================================
+// VARIANT PREDICTION
+// =========================================================
+
+export async function predictVariants(carData) {
+
+  const response = await fetch(
+    `${BASE_URL}/predict/variants`,
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+
+      body: JSON.stringify(carData),
+    }
+  );
+
+  if (!response.ok) {
+
+    const errorText =
+      await response.text();
+
+    throw new Error(
+      `Variant prediction failed: ${errorText}`
+    );
+  }
+
+  return response.json();
+}
