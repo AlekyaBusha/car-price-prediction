@@ -1099,139 +1099,101 @@ function CarForm({ onPrediction }) {
             VEHICLE AGE
         ================================================= */}
 
-        <div
-          style={{
-            marginTop: "20px",
-          }}
-        >
+        <div style={{ marginBottom: "24px" }}>
+  <label
+    style={{
+      display: "flex",
+      justifyContent: "space-between",
+      marginBottom: "8px",
+      fontWeight: "600",
+    }}
+  >
+    <span>Vehicle Age</span>
+    <span>{formData.vehicle_age || 0} years</span>
+  </label>
 
-          <label>
-
-            <strong>
-              Vehicle Age (Years)
-            </strong>
-
-          </label>
-
-
-          <input
-            type="number"
-            name="vehicle_age"
-            value={
-              formData.vehicle_age
-            }
-            onChange={
-              handleChange
-            }
-            min="0"
-            step="0.1"
-            placeholder="Example: 5"
-            style={{
-              marginTop: "8px",
-              width: "100%",
-              padding: "12px",
-              boxSizing: "border-box",
-              border:
-                "1px solid #d1d5db",
-              borderRadius: "8px",
-              fontSize: "15px",
-            }}
-          />
-
-        </div>
+  <input
+    type="range"
+    name="vehicle_age"
+    min="0"
+    max="20"
+    step="1"
+    value={formData.vehicle_age || 0}
+    onChange={handleChange}
+    style={{
+      width: "100%",
+      cursor: "pointer",
+    }}
+  />
+</div>
 
 
         {/* =================================================
             KM DRIVEN
         ================================================== */}
 
-        <div
-          style={{
-            marginTop: "20px",
-          }}
-        >
+        <div style={{ marginBottom: "24px" }}>
+  <label
+    style={{
+      display: "flex",
+      justifyContent: "space-between",
+      marginBottom: "8px",
+      fontWeight: "600",
+    }}
+  >
+    <span>KM Driven</span>
+    <span>
+      {Number(formData.km_driven || 0).toLocaleString()} km
+    </span>
+  </label>
 
-          <label>
-
-            <strong>
-              KM Driven
-            </strong>
-
-          </label>
-
-
-          <input
-            type="number"
-            name="km_driven"
-            value={
-              formData.km_driven
-            }
-            onChange={
-              handleChange
-            }
-            min="0"
-            placeholder="Example: 45000"
-            style={{
-              marginTop: "8px",
-              width: "100%",
-              padding: "12px",
-              boxSizing: "border-box",
-              border:
-                "1px solid #d1d5db",
-              borderRadius: "8px",
-              fontSize: "15px",
-            }}
-          />
-
-        </div>
+  <input
+    type="range"
+    name="km_driven"
+    min="0"
+    max="300000"
+    step="1000"
+    value={formData.km_driven || 0}
+    onChange={handleChange}
+    style={{
+      width: "100%",
+      cursor: "pointer",
+    }}
+  />
+</div>
 
 
         {/* =================================================
             MILEAGE
         ================================================== */}
 
-        <div
-          style={{
-            marginTop: "20px",
-          }}
-        >
+        <div style={{ marginBottom: "24px" }}>
+  <label
+    style={{
+      display: "flex",
+      justifyContent: "space-between",
+      marginBottom: "8px",
+      fontWeight: "600",
+    }}
+  >
+    <span>Mileage</span>
+    <span>{formData.mileage || 0} km/l</span>
+  </label>
 
-          <label>
-
-            <strong>
-              Mileage (km/l)
-            </strong>
-
-          </label>
-
-
-          <input
-            type="number"
-            name="mileage"
-            value={
-              formData.mileage
-            }
-            onChange={
-              handleChange
-            }
-            min="0"
-            step="0.1"
-            placeholder="Example: 18"
-            style={{
-              marginTop: "8px",
-              width: "100%",
-              padding: "12px",
-              boxSizing: "border-box",
-              border:
-                "1px solid #d1d5db",
-              borderRadius: "8px",
-              fontSize: "15px",
-            }}
-          />
-
-        </div>
-
-
+  <input
+    type="range"
+    name="mileage"
+    min="5"
+    max="40"
+    step="0.1"
+    value={formData.mileage || 5}
+    onChange={handleChange}
+    style={{
+      width: "100%",
+      cursor: "pointer",
+    }}
+  />
+</div>
         {/* =================================================
             ERROR
         ================================================== */}

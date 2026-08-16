@@ -1,56 +1,112 @@
 """
 Feature engineering pipeline for car price prediction.
-Converts raw/cleaned car data into the encoded feature set used for model training and inference.
+
+Converts raw/cleaned car data into the encoded feature set
+used by model training and inference.
 """
 
 import pandas as pd
 
 
-# Columns one-hot encoded during training — used to keep train/inference schema consistent
-CATEGORICAL_COLS = ['brand', 'seller_type', 'fuel_type', 'transmission_type']
+# ==========================================================
+# Categorical Columns
+# ==========================================================
 
-# Column that gets frequency-encoded instead of one-hot (too high cardinality)
-HIGH_CARDINALITY_COL = 'model'
+CATEGORICAL_COLS = [
+    "brand",
+    "seller_type",
+    "fuel_type",
+    "transmission_type"
+]
 
 
-def add_model_frequency(df: pd.DataFrame, freq_map: dict = None) -> pd.DataFrame:
+# ==========================================================
+# High Cardinality Column
+# ==========================================================
+
+HIGH_CARDINALITY_COL = "model"
+
+
+# ==========================================================
+# Numeric Columns
+# ==========================================================
+
+NUMERIC_COLS = [
+    "engine",
+    "max_power",
+    "seats",
+    "vehicle_age",
+    "km_driven",
+    "mileage"
+]
+
+
+# ==========================================================
+# Model Frequency Encoding
+# ==========================================================
+
+def add_model_frequency(
+    df: pd.DataFrame,
+    freq_map: dict = None
+) -> pd.DataFrame:
+
     """
-    Adds a 'model_freq' column based on frequency of each car model.
-    If freq_map is provided (e.g. from training data), uses it for consistent encoding
-    at inference time. Otherwise computes frequency from the given df itself.
+    Adds a model frequency encoded column.
+
+    If freq_map is provided, it is used for consistent
+    inference-time encoding.
     """
+
     df = df.copy()
+
     if freq_map is None:
-        freq_map = df[HIGH_CARDINALITY_COL].value_counts().to_dict()
-    df['model_freq'] = df[HIGH_CARDINALITY_COL].map(freq_map).fillna(0)
+
+        freq_map = (
+            df[HIGH_CARDINALITY_COL]
+            .value_counts()
+            .to_dict()
+        )
+
+    df["model_freq"] = (
+        df[HIGH_CARDINALITY_COL]
+        .map(freq_map)
+        .fillna(0)
+    )
+
     return df, freq_map
 
+
+# ==========================================================
+# Encode Categorical Columns
+# ==========================================================
 
 def encode_categoricals(
     df: pd.DataFrame,
     reference_columns: list = None
 ) -> pd.DataFrame:
+
     """
     One-hot encodes categorical columns.
 
-    Ensures all expected categorical columns exist before
-    encoding so inference does not fail if a field is missing.
+    Ensures the final dataframe has the same
+    feature columns as the training data.
     """
 
     df = df.copy()
 
-    # ---------------------------------------------------------
-    # Make sure all categorical columns exist
-    # ---------------------------------------------------------
+    # ------------------------------------------------------
+    # Make sure categorical columns exist
+    # ------------------------------------------------------
 
     for column in CATEGORICAL_COLS:
 
         if column not in df.columns:
+
             df[column] = ""
 
-    # ---------------------------------------------------------
+    # ------------------------------------------------------
     # One-hot encoding
-    # ---------------------------------------------------------
+    # ------------------------------------------------------
 
     df = pd.get_dummies(
         df,
@@ -58,19 +114,24 @@ def encode_categoricals(
         drop_first=True
     )
 
-    # ---------------------------------------------------------
+    # ------------------------------------------------------
     # Convert boolean columns to integers
-    # ---------------------------------------------------------
+    # ------------------------------------------------------
 
     bool_cols = df.select_dtypes(
         include="bool"
     ).columns
 
-    df[bool_cols] = df[bool_cols].astype(int)
+    if len(bool_cols) > 0:
 
-    # ---------------------------------------------------------
-    # Match model's training columns
-    # ---------------------------------------------------------
+        df[bool_cols] = (
+            df[bool_cols]
+            .astype(int)
+        )
+
+    # ------------------------------------------------------
+    # Match training feature columns
+    # ------------------------------------------------------
 
     if reference_columns is not None:
 
@@ -81,27 +142,126 @@ def encode_categoricals(
 
     return df
 
-def engineer_features(df: pd.DataFrame, freq_map: dict = None, reference_columns: list = None):
-    """
-    Full feature engineering pipeline.
-    - df: cleaned raw dataframe (must contain 'model', 'brand', 'seller_type',
-          'fuel_type', 'transmission_type', plus numeric columns)
-    - freq_map: precomputed model->frequency dict (pass this at inference time,
-          built from training data, so unseen/rare models get a sane fallback)
-    - reference_columns: the exact training feature column list (pass at inference
-          time to guarantee schema consistency)
 
-    Returns: (encoded_df, freq_map) — freq_map is returned so it can be reused/saved.
+# ==========================================================
+# Convert Numeric Columns
+# ==========================================================
+
+def ensure_numeric_columns(
+    df: pd.DataFrame
+) -> pd.DataFrame:
+
     """
+    Ensures all numeric model features are actually numeric.
+
+    This prevents XGBoost errors caused by pandas object dtype.
+    """
+
     df = df.copy()
 
-    df, freq_map = add_model_frequency(df, freq_map=freq_map)
-    df = df.drop(columns=[HIGH_CARDINALITY_COL])
+    for column in NUMERIC_COLS:
 
-    df = encode_categoricals(df, reference_columns=reference_columns)
+        if column in df.columns:
 
-    # Ensure any remaining bool columns (from get_dummies) are int
-    bool_cols = df.select_dtypes(include='bool').columns
-    df[bool_cols] = df[bool_cols].astype(int)
+            df[column] = pd.to_numeric(
+                df[column],
+                errors="coerce"
+            )
+
+    return df
+
+
+# ==========================================================
+# Full Feature Engineering Pipeline
+# ==========================================================
+
+def engineer_features(
+    df: pd.DataFrame,
+    freq_map: dict = None,
+    reference_columns: list = None
+):
+
+    """
+    Full feature engineering pipeline.
+
+    Steps:
+
+    1. Model frequency encoding
+    2. Remove original model column
+    3. One-hot encode categorical columns
+    4. Match training feature schema
+    5. Convert numeric columns to numeric dtype
+
+    Returns:
+        encoded_df
+        freq_map
+    """
+
+    df = df.copy()
+
+    # ------------------------------------------------------
+    # Step 1: Model frequency encoding
+    # ------------------------------------------------------
+
+    df, freq_map = add_model_frequency(
+        df,
+        freq_map=freq_map
+    )
+
+    # ------------------------------------------------------
+    # Step 2: Remove original model column
+    # ------------------------------------------------------
+
+    df = df.drop(
+        columns=[HIGH_CARDINALITY_COL]
+    )
+
+    # ------------------------------------------------------
+    # Step 3: Encode categorical columns
+    # ------------------------------------------------------
+
+    df = encode_categoricals(
+        df,
+        reference_columns=reference_columns
+    )
+
+    # ------------------------------------------------------
+    # Step 4: Ensure numeric columns
+    # ------------------------------------------------------
+
+    df = ensure_numeric_columns(
+        df
+    )
+
+    # ------------------------------------------------------
+    # Step 5: Ensure remaining boolean columns are integers
+    # ------------------------------------------------------
+
+    bool_cols = df.select_dtypes(
+        include="bool"
+    ).columns
+
+    if len(bool_cols) > 0:
+
+        df[bool_cols] = (
+            df[bool_cols]
+            .astype(int)
+        )
+
+    # ------------------------------------------------------
+    # Step 6: Final dtype safety check
+    # ------------------------------------------------------
+
+    object_cols = df.select_dtypes(
+        include="object"
+    ).columns
+
+    if len(object_cols) > 0:
+
+        raise ValueError(
+            "Object dtype columns remain after "
+            "feature engineering: "
+            f"{list(object_cols)}"
+        )
 
     return df, freq_map

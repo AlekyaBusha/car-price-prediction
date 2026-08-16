@@ -8,6 +8,7 @@ from typing import Optional, List
 from pydantic import BaseModel, Field
 
 
+
 # ==========================================================
 # Input Schema
 # ==========================================================
@@ -136,3 +137,8 @@ class SuggestionResponse(BaseModel):
     success: bool
 
     suggestions: List[Suggestion]
+class VariantPredictionInput(BaseModel):
+    brand: str
+    model: str
+    vehicle_age: float
+    km_driven: float
