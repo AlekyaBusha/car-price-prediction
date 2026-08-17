@@ -30,7 +30,7 @@ function ShapChart({ contributions }) {
 
       <p
         style={{
-          color: "#666",
+          color: "#6B7280",
           marginBottom: "20px",
         }}
       >
@@ -103,7 +103,7 @@ function ShapChart({ contributions }) {
           gap: "20px",
           marginTop: "16px",
           fontSize: "14px",
-          color: "#666",
+          color: "#6B7280",
         }}
       >
         <span>

@@ -211,7 +211,7 @@ function SearchableDropdown({
             overflowY: "auto",
             zIndex: 1000,
             boxShadow:
-              "0 6px 30px rgba(0,0,0,0.6)",
+              "0 10px 25px rgba(0,0,0,0.08)",
           }}
         >
           {filteredOptions.length > 0 ? (
@@ -227,7 +227,7 @@ function SearchableDropdown({
                   padding: "11px 12px",
                   cursor: "pointer",
                   borderBottom:
-                    "1px solid rgba(255,255,255,0.02)",
+                    "1px solid #E5E7EB",
                   fontSize: "15px",
                   color: "var(--text)",
                 }}
@@ -247,7 +247,7 @@ function SearchableDropdown({
             <div
               style={{
                 padding: "12px",
-                color: "#777",
+                color: "#9CA3AF",
               }}
             >
               No results found

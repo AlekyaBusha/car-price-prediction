@@ -1,0 +1,130 @@
+/* VariantComparison.css */
+
+.variant-comparison-container {
+  width: 100%;
+}
+
+.variant-header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.variant-count {
+  font-size: 13px;
+  color: var(--muted-text);
+  margin: 0;
+  font-weight: 500;
+}
+
+.sort-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--muted-bg);
+  border-radius: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.sort-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.sort-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sort-btn {
+  padding: 6px 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sort-btn:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.sort-btn.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.sort-indicator {
+  margin-left: 4px;
+  font-size: 11px;
+}
+
+.variants-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.no-variants-message {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--muted-text);
+  font-size: 14px;
+  background: var(--muted-bg);
+  border-radius: 8px;
+}
+
+@media (max-width: 1024px) {
+  .variants-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .variants-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+  }
+
+  .sort-controls {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .sort-buttons {
+    width: 100%;
+    gap: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .variants-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .variant-header-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}

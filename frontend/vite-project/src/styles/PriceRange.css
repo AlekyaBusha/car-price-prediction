@@ -1,0 +1,144 @@
+/* PriceRange.css */
+
+.price-range-container {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 20px 0;
+}
+
+.price-range-display {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.predicted-price-box {
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+}
+
+.predicted-price-box .label {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.predicted-value {
+  color: white;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 8px 0 0 0;
+}
+
+.range-visualization {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--muted-text);
+}
+
+.low-label,
+.high-label {
+  font-weight: 500;
+}
+
+.range-bar {
+  position: relative;
+  height: 8px;
+  background: linear-gradient(
+    90deg,
+    #DC2626 0%,
+    #F97316 25%,
+    #2563EB 50%,
+    #22C55E 100%
+  );
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.range-marker {
+  position: absolute;
+  top: -6px;
+  width: 20px;
+  height: 20px;
+  background: var(--primary);
+  border: 3px solid white;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+.range-info {
+  background: #F0F9FF;
+  padding: 12px;
+  border-radius: 6px;
+  border-left: 4px solid var(--primary);
+}
+
+.range-info .info-text {
+  font-size: 13px;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.price-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.price-item {
+  display: flex;
+  flex-direction: column;
+  background: var(--muted-bg);
+  padding: 12px;
+  border-radius: 6px;
+  align-items: center;
+  text-align: center;
+}
+
+.price-item .label {
+  font-size: 11px;
+  color: var(--muted-text);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 8px;
+}
+
+.price-item .value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+@media (max-width: 768px) {
+  .predicted-value {
+    font-size: 24px;
+  }
+
+  .price-grid {
+    grid-template-columns: 1fr;
+  }
+}

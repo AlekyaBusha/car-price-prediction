@@ -6,20 +6,20 @@ body {
   margin: 0;
 }
 
-/* Dark theme variables */
+/* Professional Light Theme */
 :root {
-  --bg: #0b1220;
-  --surface: #0f1724;
-  --card-bg: #0e1722;
-  --muted-bg: #111827;
-  --panel-bg: #0b1220;
-  --text: #e6eef8;
-  --muted-text: #9aa6b2;
+  --bg: #F8FAFC;
+  --surface: #FFFFFF;
+  --card-bg: #FFFFFF;
+  --muted-bg: #F3F4F6;
+  --panel-bg: #F8FAFC;
+  --text: #111827;
+  --muted-text: #6B7280;
   --accent: #22c55e;
   --primary: #2563eb;
-  --border: rgba(255,255,255,0.06);
-  --card-border: rgba(255,255,255,0.04);
-  --danger-bg: #3b0b0b;
+  --border: #E5E7EB;
+  --card-border: #D1D5DB;
+  --danger-bg: #FEE2E2;
 }
 
 body {

@@ -19,7 +19,13 @@ import {
 import SearchableDropdown from "./SearchableDropdown";
 
 
-function CarForm({ onPrediction }) {
+function CarForm({
+  onPrediction,
+  onError,
+  onVariantsLoading,
+  onExplanationLoading,
+  onForecastLoading,
+}) {
 
   // =========================================================
   // Dropdown data
@@ -377,10 +383,9 @@ function CarForm({ onPrediction }) {
       !formData.seller_type
     ) {
 
-      setError(
-        "Please fill Brand, Model, Fuel Type, Transmission and Seller Type."
-      );
-
+      const errorMsg = "Please fill Brand, Model, Fuel Type, Transmission and Seller Type.";
+      setError(errorMsg);
+      if (onError) onError(errorMsg);
       return;
 
     }
@@ -487,8 +492,8 @@ function CarForm({ onPrediction }) {
 
       let explanation = null;
 
-
       try {
+        if (onExplanationLoading) onExplanationLoading(true);
 
         const explanationResult =
           await explainPrice(
@@ -512,7 +517,8 @@ function CarForm({ onPrediction }) {
           "SHAP explanation error:",
           err
         );
-
+      } finally {
+        if (onExplanationLoading) onExplanationLoading(false);
       }
 
 
@@ -522,8 +528,8 @@ function CarForm({ onPrediction }) {
 
       let forecast = [];
 
-
       try {
+        if (onForecastLoading) onForecastLoading(true);
 
         const forecastResult =
           await forecastPrice(
@@ -538,7 +544,6 @@ function CarForm({ onPrediction }) {
           forecastResult
         );
 
-
         forecast =
           forecastResult?.forecast || [];
 
@@ -548,7 +553,8 @@ function CarForm({ onPrediction }) {
           "Forecast error:",
           err
         );
-
+      } finally {
+        if (onForecastLoading) onForecastLoading(false);
       }
 
 
@@ -631,11 +637,9 @@ function CarForm({ onPrediction }) {
         err
       );
 
-
-      setError(
-        err.message ||
-        "Failed to predict car price."
-      );
+      const errorMsg = err.message || "Failed to predict car price.";
+      setError(errorMsg);
+      if (onError) onError(errorMsg);
 
     } finally {
 
@@ -750,6 +754,7 @@ function CarForm({ onPrediction }) {
     try {
 
       setVariantLoading(true);
+      if (onVariantsLoading) onVariantsLoading(true);
 
 
       // -----------------------------------------------------
@@ -865,6 +870,7 @@ function CarForm({ onPrediction }) {
     } finally {
 
       setVariantLoading(false);
+      if (onVariantsLoading) onVariantsLoading(false);
 
     }
 
@@ -928,7 +934,7 @@ function CarForm({ onPrediction }) {
         padding: "40px",
         borderRadius: "16px",
         boxShadow:
-          "0 10px 30px rgba(2,6,23,0.6)",
+          "0 10px 25px rgba(0,0,0,0.08)",
         color: "var(--text)",
       }}
     >
@@ -1435,7 +1441,7 @@ function CarForm({ onPrediction }) {
                 padding: "12px",
                 borderRadius: "8px",
                 background: "var(--danger-bg)",
-                color: "#ffb4b4",
+                color: "#DC2626",
               }}
           >
             {error}
@@ -1573,7 +1579,7 @@ function CarForm({ onPrediction }) {
             padding: "12px",
             borderRadius: "8px",
             background: "var(--danger-bg)",
-            color: "#ffb4b4",
+            color: "#DC2626",
           }}
         >
 
@@ -1602,7 +1608,7 @@ function CarForm({ onPrediction }) {
 
           <h3 style={{ margin: 0 }}>AI Suggestions</h3>
 
-          <p style={{ color: "#666", marginTop: "6px" }}>
+          <p style={{ color: "#6B7280", marginTop: "6px" }}>
             We noticed some missing details. Here are estimated prices for different options.
           </p>
 
@@ -1618,7 +1624,7 @@ function CarForm({ onPrediction }) {
                 <strong>Seats not provided</strong>
                 <div style={{ marginTop: 10 }}>
                   {(suggestions.seats.length === 0) ? (
-                    <div style={{ color: '#666', marginTop: 8 }}>Estimated prices for seats will appear after predicting.</div>
+                    <div style={{ color: '#6B7280', marginTop: 8 }}>Estimated prices for seats will appear after predicting.</div>
                   ) : (
                     suggestions.seats.map((s, idx) => (
                       <div key={`seat-${idx}`} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0" }}>
@@ -1635,7 +1641,7 @@ function CarForm({ onPrediction }) {
                 <strong>Engine not provided</strong>
                 <div style={{ marginTop: 10 }}>
                   {(suggestions.engines.length === 0) ? (
-                    <div style={{ color: '#666', marginTop: 8 }}>Estimated prices for engines will appear after predicting.</div>
+                    <div style={{ color: '#6B7280', marginTop: 8 }}>Estimated prices for engines will appear after predicting.</div>
                   ) : (
                     suggestions.engines.map((e, idx) => (
                       <div key={`eng-${idx}`} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0" }}>
@@ -1652,7 +1658,7 @@ function CarForm({ onPrediction }) {
                 <strong>Seller Type not provided</strong>
                 <div style={{ marginTop: 10 }}>
                   {(suggestions.sellers.length === 0) ? (
-                    <div style={{ color: '#666', marginTop: 8 }}>Estimated prices for seller types will appear after predicting.</div>
+                    <div style={{ color: '#6B7280', marginTop: 8 }}>Estimated prices for seller types will appear after predicting.</div>
                   ) : (
                     suggestions.sellers.map((s, idx) => (
                       <div key={`sell-${idx}`} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0" }}>
@@ -1713,7 +1719,7 @@ function CarForm({ onPrediction }) {
               <p
                 style={{
                   marginTop: "5px",
-                  color: "#666",
+                  color: "#6B7280",
                 }}
               >
                 {variants.length} variants found
@@ -1765,7 +1771,7 @@ function CarForm({ onPrediction }) {
                       borderRadius: "12px",
                       background: "var(--card-bg)",
                       boxShadow:
-                        "0 8px 30px rgba(2,6,23,0.6)",
+                        "0 8px 20px rgba(0,0,0,0.06)",
                     }}
                   >
 
@@ -1964,7 +1970,7 @@ function CarForm({ onPrediction }) {
                       <div
                         style={{
                           marginTop: "10px",
-                          color: "#666",
+                          color: "#6B7280",
                           fontSize: "13px",
                         }}
                       >
@@ -2030,7 +2036,7 @@ function CarForm({ onPrediction }) {
 
           <p
             style={{
-              color: "#666",
+              color: "#6B7280",
               marginTop: "5px",
             }}
           >
@@ -2062,7 +2068,7 @@ function CarForm({ onPrediction }) {
                 <div
                   style={{
                     fontSize: "12px",
-                    color: "#666",
+                    color: "#6B7280",
                   }}
                 >
                   Low
@@ -2085,7 +2091,7 @@ function CarForm({ onPrediction }) {
                 <div
                   style={{
                     fontSize: "12px",
-                    color: "#666",
+                    color: "#6B7280",
                   }}
                 >
                   Predicted
@@ -2108,7 +2114,7 @@ function CarForm({ onPrediction }) {
                 <div
                   style={{
                     fontSize: "12px",
-                    color: "#666",
+                    color: "#6B7280",
                   }}
                 >
                   High
