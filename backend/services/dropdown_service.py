@@ -23,7 +23,6 @@ from backend.utils.data_loader import data_loader
 class DropdownService:
 
     def __init__(self):
-
         self.df = data_loader.df
 
     # ==========================================================
@@ -64,13 +63,11 @@ class DropdownService:
 
     def get_model_data(self, brand, model):
 
-        df = self.df[
+        return self.df[
             (self.df["brand"].astype(str) == str(brand))
             &
             (self.df["model"].astype(str) == str(model))
         ]
-
-        return df
 
     # ==========================================================
     # Fuel Types
@@ -203,5 +200,44 @@ class DropdownService:
             .tolist()
         )
 
+    # ==========================================================
+    # Valid Engine + Max Power + Seats combinations
+    # ==========================================================
+
+    def get_vehicle_spec_combinations(
+        self,
+        brand,
+        model
+    ):
+
+        df = self.get_model_data(
+            brand,
+            model
+        )
+
+        columns = [
+            "engine",
+            "max_power",
+            "seats"
+        ]
+
+        # Keep only rows where all three values exist
+        combinations = (
+            df[columns]
+            .dropna()
+            .drop_duplicates()
+            .sort_values(
+                by=columns
+            )
+        )
+
+        return combinations.to_dict(
+            orient="records"
+        )
+
+
+# ==========================================================
+# Global Service Instance
+# ==========================================================
 
 dropdown_service = DropdownService()

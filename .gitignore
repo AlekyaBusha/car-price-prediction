@@ -101,3 +101,22 @@ data/processed/*.csv
 *.zip
 *.rar
 *.7z
+car-price-prediction/
+
+# Python virtual environments
+.venv/
+.venv-1/
+venv/
+
+# Python generated files
+__pycache__/
+
+*.py[cod]
+
+# Node
+node_modules/
+dist/
+
+# Local duplicate project
+car-price-prediction/
+car-price-prediction zip file.zip

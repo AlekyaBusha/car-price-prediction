@@ -1,0 +1,133 @@
+/* VariantComparison.css */
+
+.variant-comparison-container {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.variant-header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 14px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #f8fafc;
+  margin: 0;
+}
+
+.variant-count {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 0;
+  font-weight: 500;
+}
+
+.sort-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.sort-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #e5e7eb;
+}
+
+.sort-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sort-btn {
+  padding: 6px 12px;
+  background: #0b1624;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 6px;
+  color: #e5e7eb;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sort-btn:hover {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
+.sort-btn.active {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
+.sort-indicator {
+  margin-left: 4px;
+  font-size: 11px;
+}
+
+.variants-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  width: 100%;
+  margin-bottom: 16px;
+  align-items: stretch;
+  min-width: 0;
+}
+
+.no-variants-message {
+  text-align: center;
+  padding: 40px 20px;
+  color: #94a3b8;
+  font-size: 14px;
+  background: #0b1624;
+  border-radius: 8px;
+}
+
+@media (max-width: 1100px) {
+  .variants-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 650px) {
+  .variants-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .sort-controls {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .sort-buttons {
+    width: 100%;
+    gap: 6px;
+  }
+
+  .variant-header-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}

@@ -168,17 +168,18 @@ function SearchableDropdown({
           onFocus={handleFocus}
           onChange={handleSearch}
           onKeyDown={handleKeyDown}
-          style={{
+            style={{
             width: "100%",
             padding: "12px 40px 12px 12px",
             boxSizing: "border-box",
-            border: "1px solid #d1d5db",
+            border: "1px solid var(--border)",
             borderRadius: "8px",
             fontSize: "15px",
             outline: "none",
             background: disabled
-              ? "#f3f4f6"
-              : "white",
+              ? "var(--muted-bg)"
+              : "var(--card-bg)",
+            color: "var(--text)",
           }}
         />
 
@@ -203,14 +204,14 @@ function SearchableDropdown({
             left: 0,
             right: 0,
             marginTop: "4px",
-            background: "white",
-            border: "1px solid #d1d5db",
+            background: "var(--card-bg)",
+            border: "1px solid var(--border)",
             borderRadius: "8px",
             maxHeight: "220px",
             overflowY: "auto",
             zIndex: 1000,
             boxShadow:
-              "0 6px 15px rgba(0,0,0,0.12)",
+              "0 10px 25px rgba(0,0,0,0.08)",
           }}
         >
           {filteredOptions.length > 0 ? (
@@ -226,16 +227,17 @@ function SearchableDropdown({
                   padding: "11px 12px",
                   cursor: "pointer",
                   borderBottom:
-                    "1px solid #f1f1f1",
+                    "1px solid #E5E7EB",
                   fontSize: "15px",
+                  color: "var(--text)",
                 }}
                 onMouseEnter={(event) => {
                   event.currentTarget.style.background =
-                    "#f3f4f6";
+                    "var(--muted-bg)";
                 }}
                 onMouseLeave={(event) => {
                   event.currentTarget.style.background =
-                    "white";
+                    "var(--card-bg)";
                 }}
               >
                 {String(option)}
@@ -245,7 +247,7 @@ function SearchableDropdown({
             <div
               style={{
                 padding: "12px",
-                color: "#777",
+                color: "#9CA3AF",
               }}
             >
               No results found

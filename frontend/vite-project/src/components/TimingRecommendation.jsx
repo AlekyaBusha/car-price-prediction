@@ -70,7 +70,7 @@ function TimingRecommendation({ forecast }) {
           marginTop: "20px",
           padding: "20px",
           borderRadius: "10px",
-          background: "#f8fafc",
+          background: "#F3F4F6",
         }}
       >
         <h3
@@ -85,7 +85,7 @@ function TimingRecommendation({ forecast }) {
         <p
           style={{
             marginTop: "10px",
-            color: "#555",
+            color: "#6B7280",
             lineHeight: "1.6",
           }}
         >

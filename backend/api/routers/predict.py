@@ -5,9 +5,22 @@ Prediction API Router
 """
 
 from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+from typing import Optional
 
-from backend.api.schemas import CarInput, PredictionResponse
-from backend.services.prediction_service import PredictionService
+from backend.api.schemas import (
+    CarInput,
+    PredictionResponse
+)
+
+from backend.services.prediction_service import (
+    PredictionService
+)
+
+from backend.services.variant_prediction_service import (
+    VariantPredictionService
+)
+
 
 router = APIRouter(
     prefix="/predict",
@@ -15,7 +28,29 @@ router = APIRouter(
 )
 
 
-@router.post("/", response_model=PredictionResponse)
+# ==========================================================
+# Variant Prediction Request
+# ==========================================================
+
+class VariantPredictionInput(BaseModel):
+
+    brand: str
+    model: str
+    vehicle_age: float
+    km_driven: float
+    mileage: float
+    engine: Optional[float] = None
+    seats: Optional[float] = None
+
+
+# ==========================================================
+# Normal Prediction
+# ==========================================================
+
+@router.post(
+    "/",
+    response_model=PredictionResponse
+)
 def predict_price(car: CarInput):
     """
     Predict the selling price of a car.
@@ -23,7 +58,86 @@ def predict_price(car: CarInput):
 
     try:
 
-        result = PredictionService.predict(car.model_dump())
+        result = PredictionService.predict(
+            car.model_dump()
+        )
+
+        return result
+
+    except Exception as e:
+
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
+
+
+# ==========================================================
+# Predict Price Options
+# ==========================================================
+
+@router.post("/options/")
+def predict_price_options(car: CarInput):
+
+    try:
+
+        from backend.services.dropdown_service import (
+            dropdown_service
+        )
+
+        combinations = (
+            dropdown_service.get_vehicle_spec_combinations(
+                car.brand,
+                car.model
+            )
+        )
+
+        result = PredictionService.predict_options(
+            car.model_dump(),
+            combinations
+        )
+
+        return result
+
+    except Exception as e:
+
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
+
+
+# ==========================================================
+# Predict All Variants
+# ==========================================================
+
+@router.post("/variants")
+def predict_variants(
+    car: VariantPredictionInput
+):
+    """
+    Predict prices for all variants of a
+    selected brand and model.
+    """
+
+    try:
+
+        # Normalize model name: ensure it includes brand prefix
+        model_name = car.model
+        if not model_name.lower().startswith(car.brand.lower()):
+            model_name = f"{car.brand} {car.model}"
+
+        result = (
+            VariantPredictionService.predict_variants(
+                brand=car.brand,
+                model=model_name,
+                vehicle_age=car.vehicle_age,
+                km_driven=car.km_driven,
+                mileage=car.mileage,
+                engine=car.engine,
+                seats=car.seats,
+            )
+        )
 
         return result
 

@@ -151,3 +151,20 @@ def get_seats(
                 model
             )
     }
+    # ==========================================================
+# Valid Vehicle Specifications
+# ==========================================================
+
+@router.get("/spec-combinations/{brand}/{model}")
+def get_spec_combinations(
+    brand: str,
+    model: str
+):
+
+    return {
+        "combinations":
+            dropdown_service.get_vehicle_spec_combinations(
+                brand,
+                model
+            )
+    }

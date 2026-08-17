@@ -1,35 +1,39 @@
 .header{
 
-    background:#2563EB;
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
 
-    color:white;
+    color: white;
 
-    padding:25px 50px;
+    padding: 30px 50px;
 
-    box-shadow:0 5px 15px rgba(0,0,0,.12);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.07);
 
 }
 
 .header-content{
 
-    max-width:1300px;
+    max-width: 1300px;
 
-    margin:auto;
+    margin: auto;
 
 }
 
 .header h1{
 
-    font-size:32px;
+    font-size: 32px;
 
-    margin-bottom:8px;
+    margin-bottom: 8px;
+
+    font-weight: 700;
 
 }
 
 .header p{
 
-    opacity:.9;
+    opacity: 0.95;
 
-    font-size:16px;
+    font-size: 16px;
+
+    font-weight: 400;
 
 }
