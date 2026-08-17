@@ -101,3 +101,4 @@ data/processed/*.csv
 *.zip
 *.rar
 *.7z
+car-price-prediction/
