@@ -139,15 +139,20 @@ export default function VariantComparison({ variants = [], loading }) {
 
       {/* Variants Grid */}
       <div className="variants-grid">
-        {paginatedVariants.map((variant, index) => (
-          <VariantCard
-            key={`${variant.fuel_type}-${variant.transmission_type}-${index}`}
-            variant={variant}
-            index={
-              (currentPage - 1) * ITEMS_PER_PAGE + index + 1
-            }
-          />
-        ))}
+        {paginatedVariants.map((variant, index) => {
+          // Check if this is the highest priced variant in the entire sorted list
+          const isHighest = sortedVariants.length > 0 && 
+            variant.predicted_price === Math.max(...sortedVariants.map(v => v.predicted_price || 0));
+          
+          return (
+            <VariantCard
+              key={`${variant.fuel_type}-${variant.transmission_type}-${index}`}
+              variant={variant}
+              index={(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
+              isHighest={isHighest}
+            />
+          );
+        })}
       </div>
 
       {/* Pagination */}
