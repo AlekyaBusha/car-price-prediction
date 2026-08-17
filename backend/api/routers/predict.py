@@ -122,10 +122,15 @@ def predict_variants(
 
     try:
 
+        # Normalize model name: ensure it includes brand prefix
+        model_name = car.model
+        if not model_name.lower().startswith(car.brand.lower()):
+            model_name = f"{car.brand} {car.model}"
+
         result = (
             VariantPredictionService.predict_variants(
                 brand=car.brand,
-                model=car.model,
+                model=model_name,
                 vehicle_age=car.vehicle_age,
                 km_driven=car.km_driven,
                 mileage=car.mileage,

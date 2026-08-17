@@ -2,7 +2,6 @@ import { useState } from "react";
 import Header from "../components/Header/Header";
 import CarForm from "../components/CarForm.jsx";
 import PriceRange from "../components/PriceRange.jsx";
-import PriceCard from "../components/PriceCard.jsx";
 import ShapExplanation from "../components/ShapExplanation.jsx";
 import ForecastChartEnhanced from "../components/ForecastChartEnhanced.jsx";
 import VariantComparison from "../components/VariantComparison.jsx";
@@ -25,11 +24,11 @@ function Dashboard() {
   const [forecastLoading, setForecastLoading] = useState(false);
 
   // UI state
-  const [activeTab, setActiveTab] = useState("variants"); // 'variants', 'shap', 'forecast'
+  const [activeTab, setActiveTab] = useState("shap"); // 'variants', 'shap', 'forecast'
   const [error, setError] = useState(null);
 
   const handlePrediction = (result) => {
-    console.log("Dashboard received prediction:", result);
+
 
     // Set prediction price
     setPrediction(result);

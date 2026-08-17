@@ -277,37 +277,7 @@ function CarForm({
         );
 
 
-        console.log(
-          "Model-dependent options loaded:"
-        );
 
-        console.log({
-
-          brand:
-            formData.brand,
-
-          model:
-            formData.model,
-
-          fuelTypes:
-            fuelData?.fuel_types || [],
-
-          transmissions:
-            transmissionData?.transmission_types || [],
-
-          sellerTypes:
-            sellerData?.seller_types || [],
-
-          engines:
-            engineData?.engines || [],
-
-          maxPowers:
-            maxPowerData?.max_powers || [],
-
-          seats:
-            seatsData?.seats || [],
-
-        });
 
       } catch (err) {
 
@@ -462,11 +432,7 @@ function CarForm({
       };
 
 
-      console.log(
-        "Prediction request:"
-      );
 
-      console.log(payload);
 
 
       // =====================================================
@@ -479,11 +445,7 @@ function CarForm({
         );
 
 
-      console.log(
-        "Prediction response:"
-      );
 
-      console.log(result);
 
 
       // =====================================================
@@ -500,13 +462,7 @@ function CarForm({
             payload
           );
 
-        console.log(
-          "SHAP explanation response:"
-        );
 
-        console.log(
-          explanationResult
-        );
 
         explanation =
           explanationResult;
@@ -536,13 +492,7 @@ function CarForm({
             payload
           );
 
-        console.log(
-          "Forecast response:"
-        );
 
-        console.log(
-          forecastResult
-        );
 
         forecast =
           forecastResult?.forecast || [];
@@ -797,15 +747,7 @@ function CarForm({
       };
 
 
-      console.log(
-        "================================="
-      );
 
-      console.log(
-        "Variant prediction request:"
-      );
-
-      console.log(payload);
 
 
       // -----------------------------------------------------
@@ -818,11 +760,7 @@ function CarForm({
         );
 
 
-      console.log(
-        "Variant prediction response:"
-      );
 
-      console.log(result);
 
 
       // -----------------------------------------------------
@@ -1542,8 +1480,8 @@ function CarForm({
                 variantLoading ||
                 !formData.brand ||
                 !formData.model
-                  ? "#374151"
-                  : "var(--surface)",
+                  ? "#9ca3af"
+                  : "#F59E0B",
               color: "white",
               fontSize: "16px",
               fontWeight: "bold",
