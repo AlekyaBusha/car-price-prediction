@@ -20,31 +20,32 @@ This is a comprehensive, production-ready Used Car Price Prediction application 
 #### Step 1: Install Backend Dependencies
 
 ```bash
-cd /home/pavan/Documents/car-price-prediction
+# Navigate to project root directory first
+cd car-price-prediction  # or your project directory name
 
 # Install Python requirements
-pip install -r backend/requirements.txt --break-system-packages
+pip install -r backend/requirements.txt
 ```
 
 #### Step 2: Start Backend Server
 
 ```bash
-cd /home/pavan/Documents/car-price-prediction
-
-# Start FastAPI server (will run on http://127.0.0.1:8000)
-uvicorn backend.api.main:app --reload
+# From project root
+# Start FastAPI server (will run on http://0.0.0.0:8000)
+uvicorn backend.api.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 The backend will initialize models and load data on startup. You should see:
 ```
 Backend Started Successfully
-Uvicorn running on http://127.0.0.1:8000
+Uvicorn running on http://0.0.0.0:8000
 ```
 
 #### Step 3: Start Frontend Development Server (New Terminal)
 
 ```bash
-cd /home/pavan/Documents/car-price-prediction/frontend/vite-project
+# From project root
+cd frontend/vite-project
 
 # Install dependencies (first time only)
 npm install
@@ -101,7 +102,7 @@ You should see the Car Price Prediction dashboard with:
 
 ## API Endpoints
 
-The backend provides these endpoints (all at `http://127.0.0.1:8000`):
+The backend provides these endpoints (all at `http://localhost:8000` for local development):
 
 ### Dropdowns
 - `GET /dropdown/brands` - Get all car brands
@@ -214,13 +215,13 @@ uvicorn backend.api.main:app --reload --port 8001
 ```
 
 **Issue**: Models not loading
-- Ensure you're in the correct directory: `/home/pavan/Documents/car-price-prediction`
+- Ensure you're in the correct directory: your project root directory
 - Check that `backend/models/` contains the model files
 
 ### API Connection Issues
 
 **Frontend shows error: "Failed to fetch brands"**
-- Ensure backend is running: `http://127.0.0.1:8000/health`
+- Ensure backend is running: `http://localhost:8000/health`
 - Check that CORS is enabled (should be in main.py)
 - Verify API_URL is correct in `frontend/vite-project/src/services/api.js`
 

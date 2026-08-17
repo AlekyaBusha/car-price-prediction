@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "backend": "cd ../../ && venv\\Scripts\\python -m uvicorn api.main:app --reload",
+    "backend": "cd ../../ && python -m uvicorn backend.api.main:app --reload",
     "dev:all": "concurrently \"npm run backend\" \"vite\""
   },
   "dependencies": {

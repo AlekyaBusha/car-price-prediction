@@ -4,11 +4,13 @@
 # Car Price Prediction - Complete Setup & Run Script
 # ==========================================================
 # This script sets up and runs the entire application
+# Automatically detects the project directory
 # ==========================================================
 
 set -e
 
-PROJECT_DIR="/home/pavan/Documents/car-price-prediction"
+# Automatically detect the project directory (where this script is located)
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FRONTEND_DIR="$PROJECT_DIR/frontend/vite-project"
 BACKEND_DIR="$PROJECT_DIR"
 

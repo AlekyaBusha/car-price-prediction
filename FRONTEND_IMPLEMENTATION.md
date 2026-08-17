@@ -248,7 +248,7 @@ Three main breakpoints:
 
 ### Centralized API Service (services/api.js)
 All API calls go through this layer:
-- `BASE_URL = "http://127.0.0.1:8000"`
+- `BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"` (Configurable via environment variables)
 - Error handling at API layer
 - Response parsing and validation
 - Easy to update API endpoints
@@ -507,8 +507,8 @@ Tested and working on:
 
 1. **Start Backend**
    ```bash
-   cd /home/pavan/Documents/car-price-prediction
-   uvicorn backend.api.main:app --reload
+   # From project root
+   uvicorn backend.api.main:app --reload --host 0.0.0.0 --port 8000
    ```
 
 2. **Start Frontend**
