@@ -77,3 +77,9 @@ body {
 .btn-ghost:hover:not(:disabled) {
   background: var(--muted-bg);
 }
+
+.required-star {
+  color: #EF4444;
+  font-weight: 700;
+  margin-left: 4px;
+}

@@ -7,6 +7,7 @@ function SearchableDropdown({
   onChange,
   placeholder = "Search...",
   disabled = false,
+  required = false,
 }) {
   const [search, setSearch] = useState(
     value !== null && value !== undefined ? String(value) : ""
@@ -130,6 +131,18 @@ function SearchableDropdown({
     >
       <label style={{ display: "block", marginBottom: "6px", fontSize: "13px", fontWeight: 600, color: "#E2E8F0" }}>
         {label}
+        {required && (
+          <span
+            className="required-star"
+            style={{
+              color: "#EF4444",
+              fontWeight: 700,
+              marginLeft: "4px",
+            }}
+          >
+            *
+          </span>
+        )}
       </label>
 
       <div

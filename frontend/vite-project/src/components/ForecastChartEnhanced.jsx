@@ -78,11 +78,13 @@ export default function ForecastChart({ forecast = [], loading }) {
             const price = item.price || item.predicted_price || 0;
             const height = calculateHeight(price);
 
+            const isCurrent = (item.months || 0) === 0 || index === 0;
+
             return (
               <div key={index} className="bar-column">
                 <div className="bar-container">
                   <div
-                    className="bar"
+                    className={`bar ${isCurrent ? "current-bar" : ""}`}
                     style={{ height: `${height}%` }}
                     title={`${formatMonth(item.months || 0)}: ${formatPrice(price)}`}
                   >
@@ -91,7 +93,7 @@ export default function ForecastChart({ forecast = [], loading }) {
                     </span>
                   </div>
                 </div>
-                <span className="bar-label">
+                <span className={`bar-label ${isCurrent ? "current-label" : ""}`}>
                   {formatMonth(item.months || 0)}
                 </span>
               </div>

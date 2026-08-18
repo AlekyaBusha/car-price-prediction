@@ -17,14 +17,14 @@
 
 .forecast-description {
   font-size: 13px;
-  color: var(--muted-text);
+  color: #A8B3C2;
   margin: 0 0 20px 0;
   line-height: 1.5;
 }
 
 .forecast-chart {
-  background: rgba(14, 23, 38, 0.6);
-  border: 1px solid var(--border);
+  background: #0B1725;
+  border: 1px solid #26384A;
   border-radius: 8px;
   padding: 24px 20px;
   margin-bottom: 24px;
@@ -49,18 +49,18 @@
 .bar-container {
   width: 100%;
   height: 100%;
-  background: rgba(17, 28, 46, 0.7);
+  background: rgba(13, 27, 42, 0.8);
   border-radius: 6px;
   display: flex;
   align-items: flex-end;
   padding: 4px;
   position: relative;
-  border: 1px solid rgba(148, 163, 184, 0.1);
+  border: 1px solid #26384A;
 }
 
 .bar {
   width: 100%;
-  background: linear-gradient(180deg, #38BDF8 0%, #2563EB 100%);
+  background: linear-gradient(180deg, #42A5F5 0%, #1E88E5 100%);
   border-radius: 4px 4px 0 0;
   display: flex;
   align-items: flex-end;
@@ -71,29 +71,42 @@
 }
 
 .bar:hover {
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+  box-shadow: 0 0 14px rgba(66, 165, 245, 0.6);
+}
+
+.bar.current-bar {
+  background: linear-gradient(180deg, #35E875 0%, #16A34A 100%);
+}
+
+.bar.current-bar:hover {
+  box-shadow: 0 0 14px rgba(53, 232, 117, 0.6);
 }
 
 .bar-price {
-  color: #F8FAFC;
+  color: #F1F5F9;
   font-size: 11px;
   font-weight: 700;
-  padding: 2px 4px;
+  padding: 2px 5px;
   white-space: nowrap;
   pointer-events: none;
   position: absolute;
   bottom: 100%;
   margin-bottom: 6px;
-  background: rgba(11, 17, 32, 0.85);
+  background: rgba(11, 23, 37, 0.95);
   border-radius: 4px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  border: 1px solid #26384A;
 }
 
 .bar-label {
-  font-size: 12px;
+  font-size: 13px;
   color: #CBD5E1;
   font-weight: 600;
   text-align: center;
+}
+
+.bar-label.current-label {
+  color: #35E875;
+  font-weight: 700;
 }
 
 .forecast-table {

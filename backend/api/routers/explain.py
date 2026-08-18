@@ -4,6 +4,7 @@ backend/api/routers/explain.py
 Explainability API
 """
 
+import numpy as np
 from fastapi import APIRouter, HTTPException
 
 from backend.api.schemas import CarInput
@@ -45,9 +46,10 @@ def explain(car: CarInput):
         )
 
         # Generate prediction using the SAME encoded row
-        predicted_price = loader.model.predict(
+        raw_pred = loader.model.predict(
             encoded_df
         )[0]
+        predicted_price = float(np.expm1(raw_pred))
 
         return {
             "success": True,

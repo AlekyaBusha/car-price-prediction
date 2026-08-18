@@ -59,6 +59,10 @@ function CarForm({
     sellers: [],
   });
 
+  // State for tracking model loading and no-model brands
+  const [modelsLoading, setModelsLoading] = useState(false);
+  const [modelsLoaded, setModelsLoaded] = useState(false);
+
   // Notify parent of form changes
   useEffect(() => {
     if (onFormDataChange) {
@@ -80,36 +84,78 @@ function CarForm({
     loadBrands();
   }, []);
 
-  // Load models when brand changes
+  // Load models or fallback dropdowns when brand changes
   useEffect(() => {
     async function loadModels() {
       if (!formData.brand) {
         setModels([]);
-        return;
-      }
-
-      try {
-        const data = await fetchModels(formData.brand);
-        setModels(Array.isArray(data) ? data : data?.models || []);
-      } catch (err) {
-        console.error("Model loading error:", err);
-        setModels([]);
-      }
-    }
-
-    loadModels();
-  }, [formData.brand]);
-
-  // Load dependent dropdowns when Brand + Model are chosen
-  useEffect(() => {
-    async function loadModelOptions() {
-      if (!formData.brand || !formData.model) {
+        setModelsLoaded(false);
         setFuelTypes([]);
         setTransmissions([]);
         setSellerTypes([]);
         setEngines([]);
         setMaxPowers([]);
         setSeats([]);
+        return;
+      }
+
+      try {
+        setModelsLoading(true);
+        const data = await fetchModels(formData.brand);
+        const modelList = Array.isArray(data) ? data : data?.models || [];
+        setModels(modelList);
+        setModelsLoaded(true);
+
+        // If brand has NO models, fetch dependent dropdowns directly using brand
+        if (modelList.length === 0) {
+          const [
+            fuelData,
+            transmissionData,
+            sellerData,
+            engineData,
+            maxPowerData,
+            seatsData,
+          ] = await Promise.all([
+            fetchFuelTypes(formData.brand, ""),
+            fetchTransmissions(formData.brand, ""),
+            fetchSellerTypes(formData.brand, ""),
+            fetchEngines(formData.brand, ""),
+            fetchMaxPowers(formData.brand, ""),
+            fetchSeats(formData.brand, ""),
+          ]);
+
+          setFuelTypes(fuelData?.fuel_types || []);
+          setTransmissions(transmissionData?.transmission_types || []);
+          setSellerTypes(sellerData?.seller_types || []);
+          setEngines(engineData?.engines || []);
+          setMaxPowers(maxPowerData?.max_powers || []);
+          setSeats(seatsData?.seats || []);
+        } else {
+          // Reset dependent options until user picks a model
+          setFuelTypes([]);
+          setTransmissions([]);
+          setSellerTypes([]);
+          setEngines([]);
+          setMaxPowers([]);
+          setSeats([]);
+        }
+      } catch (err) {
+        console.error("Model loading error:", err);
+        setModels([]);
+        setModelsLoaded(true);
+      } finally {
+        setModelsLoading(false);
+      }
+    }
+
+    loadModels();
+  }, [formData.brand]);
+
+  // Load dependent dropdowns when Model is selected
+  useEffect(() => {
+    async function loadModelOptions() {
+      // Only trigger if a model is explicitly selected
+      if (!formData.brand || !formData.model) {
         return;
       }
 
@@ -162,14 +208,37 @@ function CarForm({
     event.preventDefault();
     setError("");
 
-    if (
-      !formData.brand ||
-      !formData.model ||
-      !formData.fuel_type ||
-      !formData.transmission_type ||
-      !formData.seller_type
-    ) {
-      const errorMsg = "Please select Brand, Model, Fuel Type, Transmission, and Seller Type.";
+    // Backend-consistent validation: only require fields that are mandatory
+    if (!formData.brand) {
+      const errorMsg = "Please select a Brand.";
+      setError(errorMsg);
+      if (onError) onError(errorMsg);
+      return;
+    }
+
+    if (models.length > 0 && !formData.model) {
+      const errorMsg = "Please select a Model.";
+      setError(errorMsg);
+      if (onError) onError(errorMsg);
+      return;
+    }
+
+    if (fuelTypes.length > 0 && !formData.fuel_type) {
+      const errorMsg = "Please select a Fuel Type.";
+      setError(errorMsg);
+      if (onError) onError(errorMsg);
+      return;
+    }
+
+    if (transmissions.length > 0 && !formData.transmission_type) {
+      const errorMsg = "Please select a Transmission.";
+      setError(errorMsg);
+      if (onError) onError(errorMsg);
+      return;
+    }
+
+    if (sellerTypes.length > 0 && !formData.seller_type) {
+      const errorMsg = "Please select a Seller Type.";
       setError(errorMsg);
       if (onError) onError(errorMsg);
       return;
@@ -180,10 +249,10 @@ function CarForm({
 
       const payload = {
         brand: formData.brand,
-        model: formData.model,
-        fuel_type: formData.fuel_type,
-        transmission_type: formData.transmission_type,
-        seller_type: formData.seller_type,
+        model: formData.model || "",
+        fuel_type: formData.fuel_type || "Petrol",
+        transmission_type: formData.transmission_type || "Manual",
+        seller_type: formData.seller_type || "Individual",
         engine: formData.engine !== "" ? Number(formData.engine) : null,
         max_power: formData.max_power !== "" ? Number(formData.max_power) : null,
         seats: formData.seats !== "" ? Number(formData.seats) : null,
@@ -335,6 +404,7 @@ function CarForm({
           options={brands}
           value={formData.brand}
           placeholder="🔍 Search brand..."
+          required={true}
           onChange={(value) => {
             setFormData((previous) => ({
               ...previous,
@@ -362,8 +432,17 @@ function CarForm({
           label="Model"
           options={models}
           value={formData.model}
-          placeholder={formData.brand ? "🔍 Search model..." : "Select brand first"}
-          disabled={!formData.brand}
+          placeholder={
+            !formData.brand
+              ? "Select brand first"
+              : modelsLoading
+              ? "Loading models..."
+              : modelsLoaded && models.length === 0
+              ? "No models available"
+              : "🔍 Search model..."
+          }
+          disabled={!formData.brand || modelsLoading || (modelsLoaded && models.length === 0)}
+          required={models.length > 0}
           onChange={(value) => {
             setFormData((previous) => ({
               ...previous,
@@ -389,8 +468,21 @@ function CarForm({
           label="Fuel Type"
           options={fuelTypes}
           value={formData.fuel_type}
-          placeholder={formData.model ? "🔍 Search fuel type..." : "Select model first"}
-          disabled={!formData.model}
+          placeholder={
+            !formData.brand
+              ? "Select brand first"
+              : modelsLoaded && models.length > 0 && !formData.model
+              ? "Select model first"
+              : fuelTypes.length === 0
+              ? "No options available"
+              : "🔍 Search fuel type..."
+          }
+          disabled={
+            !formData.brand ||
+            (modelsLoaded && models.length > 0 && !formData.model) ||
+            fuelTypes.length === 0
+          }
+          required={fuelTypes.length > 0}
           onChange={(value) => {
             setFormData((previous) => ({
               ...previous,
@@ -404,8 +496,21 @@ function CarForm({
           label="Transmission"
           options={transmissions}
           value={formData.transmission_type}
-          placeholder={formData.model ? "🔍 Search transmission..." : "Select model first"}
-          disabled={!formData.model}
+          placeholder={
+            !formData.brand
+              ? "Select brand first"
+              : modelsLoaded && models.length > 0 && !formData.model
+              ? "Select model first"
+              : transmissions.length === 0
+              ? "No options available"
+              : "🔍 Search transmission..."
+          }
+          disabled={
+            !formData.brand ||
+            (modelsLoaded && models.length > 0 && !formData.model) ||
+            transmissions.length === 0
+          }
+          required={transmissions.length > 0}
           onChange={(value) => {
             setFormData((previous) => ({
               ...previous,
@@ -419,8 +524,21 @@ function CarForm({
           label="Seller Type"
           options={sellerTypes}
           value={formData.seller_type}
-          placeholder={formData.model ? "🔍 Search seller type..." : "Select model first"}
-          disabled={!formData.model}
+          placeholder={
+            !formData.brand
+              ? "Select brand first"
+              : modelsLoaded && models.length > 0 && !formData.model
+              ? "Select model first"
+              : sellerTypes.length === 0
+              ? "No options available"
+              : "🔍 Search seller type..."
+          }
+          disabled={
+            !formData.brand ||
+            (modelsLoaded && models.length > 0 && !formData.model) ||
+            sellerTypes.length === 0
+          }
+          required={sellerTypes.length > 0}
           onChange={(value) => {
             setFormData((previous) => ({
               ...previous,
@@ -434,8 +552,21 @@ function CarForm({
           label="Engine (CC) (Optional)"
           options={engines}
           value={formData.engine}
-          placeholder={formData.model ? "🔍 Search engine CC..." : "Select model first"}
-          disabled={!formData.model}
+          placeholder={
+            !formData.brand
+              ? "Select brand first"
+              : modelsLoaded && models.length > 0 && !formData.model
+              ? "Select model first"
+              : engines.length === 0
+              ? "No options available"
+              : "🔍 Search engine CC..."
+          }
+          disabled={
+            !formData.brand ||
+            (modelsLoaded && models.length > 0 && !formData.model) ||
+            engines.length === 0
+          }
+          required={false}
           onChange={(value) => {
             setFormData((previous) => ({
               ...previous,
@@ -449,8 +580,21 @@ function CarForm({
           label="Max Power (bhp) (Optional)"
           options={maxPowers}
           value={formData.max_power}
-          placeholder={formData.model ? "🔍 Search max power..." : "Select model first"}
-          disabled={!formData.model}
+          placeholder={
+            !formData.brand
+              ? "Select brand first"
+              : modelsLoaded && models.length > 0 && !formData.model
+              ? "Select model first"
+              : maxPowers.length === 0
+              ? "No options available"
+              : "🔍 Search max power..."
+          }
+          disabled={
+            !formData.brand ||
+            (modelsLoaded && models.length > 0 && !formData.model) ||
+            maxPowers.length === 0
+          }
+          required={false}
           onChange={(value) => {
             setFormData((previous) => ({
               ...previous,
@@ -464,8 +608,21 @@ function CarForm({
           label="Seats (Optional)"
           options={seats}
           value={formData.seats}
-          placeholder={formData.model ? "🔍 Search seats..." : "Select model first"}
-          disabled={!formData.model}
+          placeholder={
+            !formData.brand
+              ? "Select brand first"
+              : modelsLoaded && models.length > 0 && !formData.model
+              ? "Select model first"
+              : seats.length === 0
+              ? "No options available"
+              : "🔍 Search seats..."
+          }
+          disabled={
+            !formData.brand ||
+            (modelsLoaded && models.length > 0 && !formData.model) ||
+            seats.length === 0
+          }
+          required={false}
           onChange={(value) => {
             setFormData((previous) => ({
               ...previous,

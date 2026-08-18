@@ -4,6 +4,7 @@ backend/services/prediction_service.py
 Handles car price prediction and fair price range calculation.
 """
 
+import numpy as np
 import pandas as pd
 
 from backend.ml.feature_engineering import engineer_features
@@ -47,15 +48,15 @@ class PredictionService:
         )
 
         # -----------------------------------------------------
-        # Predict price
+        # Predict price (convert from log1p scale)
         # -----------------------------------------------------
 
-        predicted_price = loader.model.predict(
+        raw_pred = loader.model.predict(
             encoded_df
         )[0]
 
         predicted_price = round(
-            float(predicted_price),
+            float(np.expm1(raw_pred)),
             2
         )
 
@@ -194,15 +195,15 @@ class PredictionService:
                 )
 
             # --------------------------------------------------
-            # Predict price
+            # Predict price (convert from log1p scale)
             # --------------------------------------------------
 
-            predicted_price = loader.model.predict(
+            raw_pred = loader.model.predict(
                 encoded_df
             )[0]
 
             predicted_price = round(
-                float(predicted_price),
+                float(np.expm1(raw_pred)),
                 2
             )
 

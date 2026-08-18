@@ -43,10 +43,11 @@ def get_models(brand: str):
 # Fuel Types
 # ==========================================================
 
+@router.get("/fuel-types/{brand}")
 @router.get("/fuel-types/{brand}/{model}")
 def get_fuel_types(
     brand: str,
-    model: str
+    model: str = ""
 ):
 
     return {
@@ -62,10 +63,11 @@ def get_fuel_types(
 # Transmissions
 # ==========================================================
 
+@router.get("/transmissions/{brand}")
 @router.get("/transmissions/{brand}/{model}")
 def get_transmissions(
     brand: str,
-    model: str
+    model: str = ""
 ):
 
     return {
@@ -81,10 +83,11 @@ def get_transmissions(
 # Seller Types
 # ==========================================================
 
+@router.get("/seller-types/{brand}")
 @router.get("/seller-types/{brand}/{model}")
 def get_seller_types(
     brand: str,
-    model: str
+    model: str = ""
 ):
 
     return {
@@ -100,10 +103,11 @@ def get_seller_types(
 # Engines
 # ==========================================================
 
+@router.get("/engines/{brand}")
 @router.get("/engines/{brand}/{model}")
 def get_engines(
     brand: str,
-    model: str
+    model: str = ""
 ):
 
     return {
@@ -119,10 +123,11 @@ def get_engines(
 # Max Powers
 # ==========================================================
 
+@router.get("/max-powers/{brand}")
 @router.get("/max-powers/{brand}/{model}")
 def get_max_powers(
     brand: str,
-    model: str
+    model: str = ""
 ):
 
     return {
@@ -138,10 +143,11 @@ def get_max_powers(
 # Seats
 # ==========================================================
 
+@router.get("/seats/{brand}")
 @router.get("/seats/{brand}/{model}")
 def get_seats(
     brand: str,
-    model: str
+    model: str = ""
 ):
 
     return {
@@ -151,14 +157,17 @@ def get_seats(
                 model
             )
     }
-    # ==========================================================
+
+
+# ==========================================================
 # Valid Vehicle Specifications
 # ==========================================================
 
+@router.get("/spec-combinations/{brand}")
 @router.get("/spec-combinations/{brand}/{model}")
 def get_spec_combinations(
     brand: str,
-    model: str
+    model: str = ""
 ):
 
     return {

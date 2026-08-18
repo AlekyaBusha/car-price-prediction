@@ -6,12 +6,16 @@ import ShapExplanation from "../components/ShapExplanation.jsx";
 import ForecastChartEnhanced from "../components/ForecastChartEnhanced.jsx";
 import VariantComparison from "../components/VariantComparison.jsx";
 import TimingRecommendation from "../components/TimingRecommendation.jsx";
+import AccuracyPage from "./AccuracyPage.jsx";
 import ErrorMessage from "../components/ErrorMessage.jsx";
 import AboutSection from "../components/AboutSection.jsx";
 import { predictVariants } from "../services/api";
 import "../styles/Dashboard.css";
 
 function Dashboard() {
+  // Top-level Navigation state ("predict" | "accuracy")
+  const [activeNav, setActiveNav] = useState("predict");
+
   // Main prediction state
   const [prediction, setPrediction] = useState(null);
   const [variants, setVariants] = useState([]);
@@ -34,13 +38,46 @@ function Dashboard() {
   const [explanationLoading, setExplanationLoading] = useState(false);
   const [forecastLoading, setForecastLoading] = useState(false);
 
-  // Tab state - default to 'variants' (Compare Variants)
-  const [activeTab, setActiveTab] = useState("variants");
+  // Tab state - default to 'forecast' (Future Forecast)
+  const [activeTab, setActiveTab] = useState("forecast");
   const [error, setError] = useState(null);
 
   const handleFormDataChange = useCallback((formData) => {
     setCurrentFormData(formData);
   }, []);
+
+  const handleSelectNav = (navId) => {
+    if (navId === "accuracy") {
+      setActiveNav("accuracy");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (navId === "forecast") {
+      setActiveNav("predict");
+      setActiveTab("forecast");
+      const el = document.querySelector(".results-column") || document.querySelector(".dashboard-container");
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+    } else if (navId === "shap") {
+      setActiveNav("predict");
+      setActiveTab("shap");
+      const el = document.querySelector(".results-column") || document.querySelector(".dashboard-container");
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+    } else if (navId === "variants") {
+      setActiveNav("predict");
+      setActiveTab("variants");
+      const el = document.querySelector(".results-column") || document.querySelector(".dashboard-container");
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+    } else if (navId === "about") {
+      setActiveNav("predict");
+      const aboutEl = document.querySelector(".about-section");
+      if (aboutEl) {
+        aboutEl.scrollIntoView({ behavior: "smooth" });
+      } else {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+      }
+    } else {
+      setActiveNav("predict");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   // Fetch variants for selected Brand + Model
   const handleFetchVariants = async (formDataOverride = null) => {
@@ -67,7 +104,6 @@ function Dashboard() {
       const result = await predictVariants(payload);
       const variantList = result?.variants || [];
       setVariants(variantList);
-      setActiveTab("variants");
 
       if (variantList.length === 0) {
         setError(`No variants found for ${data.brand} ${data.model}.`);
@@ -114,7 +150,10 @@ function Dashboard() {
 
   return (
     <>
-      <Header />
+      <Header
+        activeNav={activeNav}
+        onSelectNav={handleSelectNav}
+      />
 
       {error && (
         <div className="error-section">
@@ -122,129 +161,136 @@ function Dashboard() {
         </div>
       )}
 
-      <main className="dashboard-container">
-        <div className="dashboard-layout">
-          {/* Left Column: Vehicle Details Form */}
-          <aside className="form-column">
-            <CarForm
-              onPrediction={handlePrediction}
-              onError={handleError}
-              onFormDataChange={handleFormDataChange}
-              onExplanationLoading={setExplanationLoading}
-              onForecastLoading={setForecastLoading}
-            />
-          </aside>
+      {activeNav === "accuracy" ? (
+        <AccuracyPage onNavigateToPredict={() => handleSelectNav("predict")} />
+      ) : (
+        <main className="dashboard-container">
+          <div className="dashboard-layout">
+            {/* Left Column: Vehicle Details Form */}
+            <aside className="form-column">
+              <CarForm
+                onPrediction={handlePrediction}
+                onError={handleError}
+                onFormDataChange={handleFormDataChange}
+                onExplanationLoading={setExplanationLoading}
+                onForecastLoading={setForecastLoading}
+              />
+            </aside>
 
-          {/* Right Column: Prediction & Tabs */}
-          <section className="results-column">
-            {!hasResults && !hasVariants ? (
-              <div className="empty-state">
-                <div className="empty-icon">🚗</div>
-                <h2>Enter Vehicle Details to Predict & Compare</h2>
-                <p>
-                  Fill in the vehicle specifications on the left to estimate market price,
-                  explore all available trims in the Variant Comparison, and view AI insights.
-                </p>
-                {currentFormData.brand && currentFormData.model && (
-                  <button
-                    type="button"
-                    className="btn-compare-prompt"
-                    style={{ marginTop: "12px" }}
-                    onClick={() => handleFetchVariants()}
-                    disabled={variantsLoading}
-                  >
-                    {variantsLoading ? "Loading Variants..." : "🔍 Compare All Variants for Selected Model"}
-                  </button>
-                )}
-              </div>
-            ) : (
-              <>
-                {/* Predicted Price Range Card */}
-                {hasResults && (
-                  <div className="prediction-card">
-                    <PriceRange
-                      data={
-                        prediction.price_range || {
-                          low: prediction.predicted_price,
-                          predicted: prediction.predicted_price,
-                          high: prediction.predicted_price,
-                        }
-                      }
-                    />
-                  </div>
-                )}
-
-                {/* Right Side Navigation Tabs: [ Compare Variants ] [ SHAP Explanation ] [ Future Forecast ] */}
-                <div className="tabs-container">
-                  <div className="tabs">
+            {/* Right Column: Prediction & Tabs */}
+            <section className="results-column">
+              {!hasResults && !hasVariants ? (
+                <div className="empty-state">
+                  <div className="empty-icon">🚗</div>
+                  <h2>Enter Vehicle Details to Predict & Compare</h2>
+                  <p>
+                    Fill in the vehicle specifications on the left to estimate market price,
+                    explore all available trims in the Variant Comparison, and view AI insights.
+                  </p>
+                  {currentFormData.brand && currentFormData.model && (
                     <button
                       type="button"
-                      className={`tab ${activeTab === "variants" ? "active" : ""}`}
-                      onClick={() => setActiveTab("variants")}
+                      className="btn-compare-prompt"
+                      style={{ marginTop: "12px" }}
+                      onClick={() => {
+                        handleFetchVariants();
+                        setActiveTab("variants");
+                      }}
+                      disabled={variantsLoading}
                     >
-                      Compare Variants
-                      {hasVariants && <span className="badge">{variants.length}</span>}
+                      {variantsLoading ? "Loading Variants..." : "🔍 Compare All Variants for Selected Model"}
                     </button>
-
-                    <button
-                      type="button"
-                      className={`tab ${activeTab === "shap" ? "active" : ""}`}
-                      onClick={() => setActiveTab("shap")}
-                    >
-                      SHAP Explanation
-                    </button>
-
-                    <button
-                      type="button"
-                      className={`tab ${activeTab === "forecast" ? "active" : ""}`}
-                      onClick={() => setActiveTab("forecast")}
-                    >
-                      Future Forecast
-                    </button>
-                  </div>
+                  )}
                 </div>
+              ) : (
+                <>
+                  {/* Predicted Price Range Card */}
+                  {hasResults && (
+                    <div className="prediction-card">
+                      <PriceRange
+                        data={
+                          prediction.price_range || {
+                            low: prediction.predicted_price,
+                            predicted: prediction.predicted_price,
+                            high: prediction.predicted_price,
+                          }
+                        }
+                      />
+                    </div>
+                  )}
 
-                {/* Tab Content */}
-                {activeTab === "variants" && (
-                  <div className="tab-content">
-                    <VariantComparison
-                      variants={variants}
-                      loading={variantsLoading}
-                      onCompareAllVariants={() => handleFetchVariants()}
-                      isComparing={variantsLoading}
-                      hasModelSelected={!!(currentFormData.brand && currentFormData.model)}
-                    />
+                  {/* Right Side Navigation Tabs: [ Future Forecast ] [ SHAP Explanation ] [ Compare Variants ] */}
+                  <div className="tabs-container">
+                    <div className="tabs">
+                      <button
+                        type="button"
+                        className={`tab ${activeTab === "forecast" ? "active" : ""}`}
+                        onClick={() => setActiveTab("forecast")}
+                      >
+                        Future Forecast
+                      </button>
+
+                      <button
+                        type="button"
+                        className={`tab ${activeTab === "shap" ? "active" : ""}`}
+                        onClick={() => setActiveTab("shap")}
+                      >
+                        SHAP Explanation
+                      </button>
+
+                      <button
+                        type="button"
+                        className={`tab ${activeTab === "variants" ? "active" : ""}`}
+                        onClick={() => setActiveTab("variants")}
+                      >
+                        Compare Variants
+                        {hasVariants && <span className="badge">{variants.length}</span>}
+                      </button>
+                    </div>
                   </div>
-                )}
 
-                {activeTab === "shap" && (
-                  <div className="tab-content">
-                    <ShapExplanation
-                      explanation={explanation}
-                      loading={explanationLoading}
-                    />
-                  </div>
-                )}
+                  {/* Tab Content */}
+                  {activeTab === "forecast" && (
+                    <div className="tab-content">
+                      <ForecastChartEnhanced
+                        forecast={forecast}
+                        loading={forecastLoading}
+                      />
+                      {forecast && forecast.length > 0 && (
+                        <TimingRecommendation forecast={forecast} />
+                      )}
+                    </div>
+                  )}
 
-                {activeTab === "forecast" && (
-                  <div className="tab-content">
-                    <ForecastChartEnhanced
-                      forecast={forecast}
-                      loading={forecastLoading}
-                    />
-                    {forecast && forecast.length > 0 && (
-                      <TimingRecommendation forecast={forecast} />
-                    )}
-                  </div>
-                )}
-              </>
-            )}
-          </section>
-        </div>
+                  {activeTab === "shap" && (
+                    <div className="tab-content">
+                      <ShapExplanation
+                        explanation={explanation}
+                        loading={explanationLoading}
+                      />
+                    </div>
+                  )}
 
-        {/* About Section */}
-        <AboutSection />
-      </main>
+                  {activeTab === "variants" && (
+                    <div className="tab-content">
+                      <VariantComparison
+                        variants={variants}
+                        loading={variantsLoading}
+                        onCompareAllVariants={() => handleFetchVariants()}
+                        isComparing={variantsLoading}
+                        hasModelSelected={!!(currentFormData.brand && currentFormData.model)}
+                      />
+                    </div>
+                  )}
+                </>
+              )}
+            </section>
+          </div>
+
+          {/* About Section */}
+          <AboutSection />
+        </main>
+      )}
     </>
   );
 }

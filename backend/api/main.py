@@ -15,6 +15,7 @@ from backend.api.routers.dropdown import router as dropdown_router
 from backend.api.routers.suggestions import router as suggestion_router
 from backend.api.routers.forecast import router as forecast_router
 from backend.api.routers.explain import router as explain_router
+from backend.api.routers.analytics import router as analytics_router
 from backend.api.routers.health import router as health_router
 
 
@@ -61,9 +62,22 @@ app.add_middleware(
 
 @app.get("/")
 def home():
-
     return {
         "message": "Car Price Prediction Backend Running"
+    }
+
+
+@app.get("/accuracy")
+def get_accuracy():
+    return {
+        "success": True,
+        "title": "Comparison of Model Evaluation Metrics",
+        "metrics": [
+            {"name": "Accuracy", "value": 0.97, "formatted": "0.97"},
+            {"name": "Precision", "value": 1.00, "formatted": "1.00"},
+            {"name": "Recall", "value": 0.10, "formatted": "0.10"},
+            {"name": "F1 Score", "value": 0.18, "formatted": "0.18"}
+        ]
     }
 
 
@@ -89,6 +103,10 @@ app.include_router(
 
 app.include_router(
     explain_router
+)
+
+app.include_router(
+    analytics_router
 )
 
 app.include_router(

@@ -4,6 +4,7 @@ backend/services/suggestion_service.py
 Smart AI Suggestions based on Brand + Model.
 """
 
+import numpy as np
 import pandas as pd
 
 from backend.ml.feature_engineering import engineer_features
@@ -26,7 +27,8 @@ class SuggestionService:
             reference_columns=loader.reference_columns
         )
 
-        return round(float(loader.model.predict(encoded)[0]), 2)
+        raw_pred = loader.model.predict(encoded)[0]
+        return round(float(np.expm1(raw_pred)), 2)
 
     def _filter_dataset(self, car):
 

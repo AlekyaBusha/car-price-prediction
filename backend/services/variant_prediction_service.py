@@ -176,7 +176,8 @@ class VariantPredictionService:
         engine=None,
         seats=None,
     ):
-        cls.reload()
+        if cls.model is None:
+            cls.reload()
 
         model_df = cls.get_model_data(brand, model)
 
@@ -223,9 +224,9 @@ class VariantPredictionService:
                 "count": 0
             }
 
-        results = []
+        input_data_list = []
         for v in variants:
-            input_data = {
+            input_data_list.append({
                 "brand": str(brand).lower(),
                 "model": str(model).lower(),
                 "variant": str(v["variant"]).lower(),
@@ -238,26 +239,24 @@ class VariantPredictionService:
                 "engine_type": str(v["engine_type"]).lower(),
                 "mileage": float(mileage),
                 "km_per_year": float(km_driven) / (float(vehicle_age) + 1),
-            }
+            })
 
-            df_input = pd.DataFrame([input_data])
+        df_input = pd.DataFrame(input_data_list)
+        encoded_df, _ = engineer_variant_features(
+            df_input,
+            reference_columns=cls.reference_columns
+        )
 
-            encoded_df, _ = engineer_variant_features(
-                df_input,
-                reference_columns=cls.reference_columns
-            )
+        raw_preds = cls.model.predict(encoded_df)
+        if getattr(cls, "is_v2", False):
+            predicted_prices = [float(np.expm1(p)) for p in raw_preds]
+        else:
+            predicted_prices = [float(p) for p in raw_preds]
 
-            raw_pred = cls.model.predict(encoded_df)[0]
-            if getattr(cls, "is_v2", False):
-                predicted_price = float(np.expm1(raw_pred))
-            else:
-                predicted_price = float(raw_pred)
-
-            predicted_price = max(25000.0, round(predicted_price, 2))
-
-            # Confidence score calculation (between 0.90 and 0.98)
+        results = []
+        for v, raw_price in zip(variants, predicted_prices):
+            predicted_price = max(25000.0, round(raw_price, 2))
             confidence = round(0.95, 2)
-
             results.append({
                 "variant": v["variant"],
                 "fuel_type": v["fuel_type"].capitalize(),

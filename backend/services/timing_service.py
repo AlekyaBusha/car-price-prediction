@@ -8,8 +8,13 @@ into a plain-English recommendation: buy now, or wait.
 import os
 import sys
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from forecast_engine import forecast_price
+try:
+    from backend.ml.forecast_engine import forecast_price
+except ImportError:
+    try:
+        from forecast_engine import forecast_price
+    except ImportError:
+        pass
 
 
 # Thresholds for classifying depreciation speed over the next 6 months

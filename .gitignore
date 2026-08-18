@@ -4,6 +4,7 @@
 venv/
 .venv/
 env/
+frontend/vite-project/venv/
 __pycache__/
 *.py[cod]
 *$py.class

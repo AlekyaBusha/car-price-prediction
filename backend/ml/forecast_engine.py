@@ -5,6 +5,7 @@ Predicts today's price and future prices by increasing
 vehicle_age and km_driven.
 """
 
+import numpy as np
 import pandas as pd
 
 from backend.ml.feature_engineering import engineer_features
@@ -57,7 +58,8 @@ def forecast_price(car_details: dict, months_ahead=None):
             reference_columns=reference_columns
         )
 
-        price = model.predict(encoded_df)[0]
+        raw_price = model.predict(encoded_df)[0]
+        price = float(np.expm1(raw_price))
 
         forecasts.append(
             {
