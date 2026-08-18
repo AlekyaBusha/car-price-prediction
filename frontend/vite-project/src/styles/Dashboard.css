@@ -1,4 +1,4 @@
-/* Dashboard.css */
+/* Dashboard.css - Professional Dark Dashboard */
 
 .error-section {
   background: var(--bg);
@@ -12,16 +12,17 @@
 .dashboard-container {
   background: var(--bg);
   min-height: 100vh;
+  color: var(--text);
 }
 
 .dashboard-layout {
   display: grid;
-  grid-template-columns: 485px minmax(0, 1fr);
+  grid-template-columns: 460px minmax(0, 1fr);
   gap: 28px;
   width: 100%;
-  max-width: 1400px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 32px 20px;
+  padding: 32px 24px;
 }
 
 .form-column {
@@ -54,8 +55,8 @@
 }
 
 .empty-icon {
-  font-size: 64px;
-  opacity: 0.5;
+  font-size: 56px;
+  opacity: 0.8;
 }
 
 .empty-state h2 {
@@ -69,12 +70,13 @@
   font-size: 14px;
   color: var(--muted-text);
   margin: 0;
-  max-width: 400px;
+  max-width: 420px;
   line-height: 1.6;
 }
 
 .prediction-card {
   background: var(--card-bg);
+  border: 1px solid var(--border);
   border-radius: 12px;
   overflow: hidden;
 }
@@ -93,17 +95,18 @@
   padding: 0;
   margin: 0;
   border-bottom: 1px solid var(--border);
+  background: rgba(14, 23, 38, 0.6);
 }
 
 .tab {
   flex: 1;
-  padding: 12px 16px;
+  padding: 14px 18px;
   background: transparent;
   border: none;
   border-bottom: 3px solid transparent;
   color: var(--muted-text);
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
@@ -119,23 +122,23 @@
 }
 
 .tab.active {
-  color: var(--primary);
-  border-bottom-color: var(--primary);
-  background: transparent;
+  color: #38BDF8;
+  border-bottom-color: #38BDF8;
+  background: var(--card-bg);
 }
 
 .badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 20px;
+  min-width: 22px;
   height: 20px;
   padding: 0 6px;
-  background: rgba(37, 99, 235, 0.1);
-  color: var(--primary);
+  background: rgba(56, 189, 248, 0.15);
+  color: #38BDF8;
   border-radius: 10px;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .tab-content {
@@ -149,76 +152,9 @@
   box-sizing: border-box;
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-  .dashboard-layout {
-    grid-template-columns: 40% 1fr;
-    gap: 20px;
-    padding: 24px 16px;
-  }
-}
-
-@media (max-width: 768px) {
+@media (max-width: 1100px) {
   .dashboard-layout {
     grid-template-columns: 1fr;
-    gap: 24px;
     padding: 20px 16px;
-  }
-
-  .form-column {
-    order: -1; /* Form appears first on mobile */
-  }
-
-  .empty-state {
-    padding: 40px 20px;
-  }
-
-  .empty-state h2 {
-    font-size: 18px;
-  }
-
-  .tabs {
-    flex-wrap: wrap;
-  }
-
-  .tab {
-    flex: 1 1 auto;
-    min-width: 100px;
-    padding: 10px 12px;
-    font-size: 12px;
-  }
-
-  .tab-content {
-    padding: 16px;
-  }
-}
-
-@media (max-width: 480px) {
-  .dashboard-layout {
-    gap: 16px;
-    padding: 16px 12px;
-  }
-
-  .tabs {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .tab {
-    min-width: 90px;
-    padding: 8px 10px;
-    font-size: 11px;
-  }
-
-  .empty-icon {
-    font-size: 48px;
-  }
-
-  .empty-state h2 {
-    font-size: 16px;
-  }
-
-  .empty-state p {
-    font-size: 13px;
   }
 }

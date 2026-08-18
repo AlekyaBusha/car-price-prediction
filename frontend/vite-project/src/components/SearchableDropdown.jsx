@@ -9,9 +9,7 @@ function SearchableDropdown({
   disabled = false,
 }) {
   const [search, setSearch] = useState(
-    value !== null && value !== undefined
-      ? String(value)
-      : ""
+    value !== null && value !== undefined ? String(value) : ""
   );
 
   const [isOpen, setIsOpen] = useState(false);
@@ -24,11 +22,7 @@ function SearchableDropdown({
 
   useEffect(() => {
     if (!isOpen) {
-      setSearch(
-        value !== null && value !== undefined
-          ? String(value)
-          : ""
-      );
+      setSearch(value !== null && value !== undefined ? String(value) : "");
     }
   }, [value, isOpen]);
 
@@ -46,16 +40,10 @@ function SearchableDropdown({
       }
     }
 
-    document.addEventListener(
-      "mousedown",
-      handleClickOutside
-    );
+    document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
-      document.removeEventListener(
-        "mousedown",
-        handleClickOutside
-      );
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -67,7 +55,6 @@ function SearchableDropdown({
 
   const filteredOptions = options.filter((option) => {
     const optionText = String(option ?? "").toLowerCase();
-
     return optionText.includes(searchText);
   });
 
@@ -81,7 +68,6 @@ function SearchableDropdown({
     }
 
     setIsOpen(true);
-
     // Clear current value so user can search for another value
     setSearch("");
   }
@@ -94,7 +80,6 @@ function SearchableDropdown({
     const inputValue = event.target.value;
 
     setSearch(inputValue);
-
     setIsOpen(true);
 
     if (inputValue === "") {
@@ -108,9 +93,7 @@ function SearchableDropdown({
 
   function handleSelect(option) {
     setSearch(String(option));
-
     onChange(option);
-
     setIsOpen(false);
   }
 
@@ -129,12 +112,7 @@ function SearchableDropdown({
 
     if (event.key === "Escape") {
       setIsOpen(false);
-
-      setSearch(
-        value !== null && value !== undefined
-          ? String(value)
-          : ""
-      );
+      setSearch(value !== null && value !== undefined ? String(value) : "");
     }
   }
 
@@ -147,17 +125,16 @@ function SearchableDropdown({
       ref={containerRef}
       style={{
         position: "relative",
-        marginTop: "20px",
+        marginTop: "16px",
       }}
     >
-      <label>
-        <strong>{label}</strong>
+      <label style={{ display: "block", marginBottom: "6px", fontSize: "13px", fontWeight: 600, color: "#E2E8F0" }}>
+        {label}
       </label>
 
       <div
         style={{
           position: "relative",
-          marginTop: "8px",
         }}
       >
         <input
@@ -168,18 +145,18 @@ function SearchableDropdown({
           onFocus={handleFocus}
           onChange={handleSearch}
           onKeyDown={handleKeyDown}
-            style={{
+          style={{
             width: "100%",
-            padding: "12px 40px 12px 12px",
+            padding: "11px 36px 11px 12px",
             boxSizing: "border-box",
             border: "1px solid var(--border)",
             borderRadius: "8px",
-            fontSize: "15px",
+            fontSize: "14px",
             outline: "none",
-            background: disabled
-              ? "var(--muted-bg)"
-              : "var(--card-bg)",
-            color: "var(--text)",
+            background: disabled ? "var(--muted-bg)" : "rgba(14, 23, 38, 0.7)",
+            color: disabled ? "var(--muted-text)" : "var(--text)",
+            cursor: disabled ? "not-allowed" : "text",
+            transition: "border-color 0.2s ease, box-shadow 0.2s ease",
           }}
         />
 
@@ -190,6 +167,8 @@ function SearchableDropdown({
             top: "50%",
             transform: "translateY(-50%)",
             pointerEvents: "none",
+            color: "var(--muted-text)",
+            fontSize: "11px",
           }}
         >
           {isOpen ? "▲" : "▼"}
@@ -204,14 +183,13 @@ function SearchableDropdown({
             left: 0,
             right: 0,
             marginTop: "4px",
-            background: "var(--card-bg)",
+            background: "#111C2E",
             border: "1px solid var(--border)",
             borderRadius: "8px",
             maxHeight: "220px",
             overflowY: "auto",
             zIndex: 1000,
-            boxShadow:
-              "0 10px 25px rgba(0,0,0,0.08)",
+            boxShadow: "0 10px 25px rgba(0,0,0,0.5)",
           }}
         >
           {filteredOptions.length > 0 ? (
@@ -220,24 +198,21 @@ function SearchableDropdown({
                 key={`${String(option)}-${index}`}
                 onMouseDown={(event) => {
                   event.preventDefault();
-
                   handleSelect(option);
                 }}
                 style={{
-                  padding: "11px 12px",
+                  padding: "10px 12px",
                   cursor: "pointer",
-                  borderBottom:
-                    "1px solid #E5E7EB",
-                  fontSize: "15px",
+                  borderBottom: "1px solid rgba(148, 163, 184, 0.1)",
+                  fontSize: "14px",
                   color: "var(--text)",
+                  transition: "background 0.15s ease",
                 }}
                 onMouseEnter={(event) => {
-                  event.currentTarget.style.background =
-                    "var(--muted-bg)";
+                  event.currentTarget.style.background = "#1E2D4A";
                 }}
                 onMouseLeave={(event) => {
-                  event.currentTarget.style.background =
-                    "var(--card-bg)";
+                  event.currentTarget.style.background = "transparent";
                 }}
               >
                 {String(option)}
@@ -247,10 +222,12 @@ function SearchableDropdown({
             <div
               style={{
                 padding: "12px",
-                color: "#9CA3AF",
+                color: "var(--muted-text)",
+                fontSize: "13px",
+                textAlign: "center",
               }}
             >
-              No results found
+              No options found
             </div>
           )}
         </div>

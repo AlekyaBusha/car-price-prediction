@@ -17,10 +17,19 @@ def load_mae(models_dir: str = None) -> float:
     if models_dir is None:
         models_dir = MODELS_DIR
 
-    with open(os.path.join(models_dir, 'model_metrics.json'), 'r') as f:
-        metrics = json.load(f)
+    metrics_file = os.path.join(models_dir, 'xgb_metrics.json')
+    if not os.path.exists(metrics_file):
+        metrics_file = os.path.join(models_dir, 'model_metrics.json')
 
-    return metrics['MAE']
+    if os.path.exists(metrics_file):
+        try:
+            with open(metrics_file, 'r') as f:
+                metrics = json.load(f)
+            return float(metrics.get('MAE', 80000.0))
+        except Exception:
+            pass
+
+    return 80000.0
 
 
 def get_price_range(point_prediction: float, mae: float = None, z: float = 1.2):

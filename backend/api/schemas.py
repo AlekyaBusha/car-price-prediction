@@ -4,14 +4,9 @@ backend/api/schemas.py
 Defines request and response models for the FastAPI backend.
 """
 
-from typing import Optional, List
+from typing import Optional, List, Union
 from pydantic import BaseModel, Field
 
-
-
-# ==========================================================
-# Input Schema
-# ==========================================================
 
 # ==========================================================
 # Input Schema
@@ -31,10 +26,11 @@ class CarInput(BaseModel):
         description="Car Brand"
     )
 
-    model: str = Field(
-        ...,
+    model: Optional[str] = Field(
+        default="",
         description="Car Model"
     )
+
 
     fuel_type: str = Field(
         ...,
@@ -71,21 +67,22 @@ class CarInput(BaseModel):
     )
 
     vehicle_age: Optional[float] = Field(
-        default=None,
+        default=0.0,
         description="Vehicle Age in Years"
     )
 
     km_driven: Optional[float] = Field(
-        default=None,
+        default=0.0,
         description="Kilometers Driven"
     )
 
     mileage: Optional[float] = Field(
-        default=None,
+        default=5.0,
         description="Mileage in km/l"
     )
 
-    # ==========================================================
+
+# ==========================================================
 # Price Range
 # ==========================================================
 
@@ -112,13 +109,14 @@ class PredictionResponse(BaseModel):
 
     currency: str = "INR"
 
+
 # ==========================================================
 # AI Suggestion Models
 # ==========================================================
 
 class Recommendation(BaseModel):
 
-    value: str | int | float
+    value: Union[str, int, float]
 
     predicted_price: float
 
@@ -137,8 +135,17 @@ class SuggestionResponse(BaseModel):
     success: bool
 
     suggestions: List[Suggestion]
+
+
+# ==========================================================
+# Variant Prediction Input
+# ==========================================================
+
 class VariantPredictionInput(BaseModel):
     brand: str
     model: str
-    vehicle_age: float
-    km_driven: float
+    vehicle_age: float = 0.0
+    km_driven: float = 0.0
+    mileage: float = 5.0
+    engine: Optional[float] = None
+    seats: Optional[float] = None

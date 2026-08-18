@@ -1,0 +1,18 @@
+{
+  "model": "XGBRegressor_Variant_V2",
+  "dataset_rows": 37370,
+  "features": 4352,
+  "target_transformation": "log1p",
+  "n_estimators": 700,
+  "max_depth": 8,
+  "learning_rate": 0.04,
+  "subsample": 0.85,
+  "colsample_bytree": 0.85,
+  "min_child_weight": 3,
+  "reg_alpha": 0.1,
+  "reg_lambda": 1.0,
+  "MAE": 106091.38983841903,
+  "RMSE": 265621.1826346572,
+  "R2": 0.926637366051578,
+  "MAPE": 14.689343985990103
+}

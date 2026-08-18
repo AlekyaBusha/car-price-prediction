@@ -9,6 +9,10 @@ import json
 import os
 import sys
 
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
+
 import joblib
 import pandas as pd
 
@@ -78,8 +82,9 @@ def load_data():
     )
 
     y = encoded_df["selling_price"]
+    reference_columns = X.columns.tolist()
 
-    return X, y
+    return X, y, freq_map, reference_columns
 
 
 # ==========================================================
@@ -153,7 +158,7 @@ def train_model(X, y):
 # Save model
 # ==========================================================
 
-def save_model(model, metrics):
+def save_model(model, metrics, freq_map, reference_columns):
 
     print("Saving XGBoost model...")
 
@@ -179,13 +184,19 @@ def save_model(model, metrics):
             indent=4
         )
 
-    print()
-    print("XGBoost model saved:")
-    print(XGB_MODEL_PATH)
+    ref_path = os.path.join(MODELS_DIR, "reference_columns.json")
+    with open(ref_path, "w") as f:
+        json.dump(reference_columns, f, indent=4)
+
+    freq_path = os.path.join(MODELS_DIR, "model_freq_map.json")
+    with open(freq_path, "w") as f:
+        json.dump(freq_map, f, indent=4)
 
     print()
-    print("Metrics saved:")
-    print(XGB_METRICS_PATH)
+    print("XGBoost model saved:", XGB_MODEL_PATH)
+    print("Metrics saved:", XGB_METRICS_PATH)
+    print("Reference columns saved:", ref_path)
+    print("Freq map saved:", freq_path)
 
 
 # ==========================================================
@@ -194,7 +205,7 @@ def save_model(model, metrics):
 
 def main():
 
-    X, y = load_data()
+    X, y, freq_map, reference_columns = load_data()
 
     model, metrics = train_model(
         X,
@@ -203,7 +214,9 @@ def main():
 
     save_model(
         model,
-        metrics
+        metrics,
+        freq_map,
+        reference_columns
     )
 
     print()
@@ -223,4 +236,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main()

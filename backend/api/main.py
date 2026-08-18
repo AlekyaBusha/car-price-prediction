@@ -4,6 +4,7 @@ backend/api/main.py
 Main FastAPI Application
 """
 
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -18,15 +19,26 @@ from backend.api.routers.health import router as health_router
 
 
 # ==========================================================
+# Lifespan
+# ==========================================================
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    initialize()
+    print("Backend Started Successfully")
+    yield
+
+
+# ==========================================================
 # FastAPI Application
 # ==========================================================
 
 app = FastAPI(
     title="Car Price Prediction API",
     version="1.0.0",
-    description="AI Powered Used Car Price Prediction System"
+    description="AI Powered Used Car Price Prediction System",
+    lifespan=lifespan
 )
-
 
 # ==========================================================
 # CORS
@@ -41,14 +53,6 @@ app.add_middleware(
 )
 
 
-# ==========================================================
-# Startup
-# ==========================================================
-
-@app.on_event("startup")
-def startup():
-    initialize()
-    print("Backend Started Successfully")
 
 
 # ==========================================================

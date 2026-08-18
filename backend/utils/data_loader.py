@@ -11,15 +11,16 @@ import pandas as pd
 class DataLoader:
 
     def __init__(self):
-
-        data_path = (
+        self.data_path = (
             Path(__file__).resolve().parent.parent
             / "data"
             / "processed"
             / "cleaned_car_data.csv"
         )
+        self.reload()
 
-        self.df = pd.read_csv(data_path)
+    def reload(self):
+        self.df = pd.read_csv(self.data_path)
 
 
 data_loader = DataLoader()

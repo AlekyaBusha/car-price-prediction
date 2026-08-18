@@ -5,12 +5,12 @@ Prediction API Router
 """
 
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
 from typing import Optional
 
 from backend.api.schemas import (
     CarInput,
-    PredictionResponse
+    PredictionResponse,
+    VariantPredictionInput
 )
 
 from backend.services.prediction_service import (
@@ -26,21 +26,6 @@ router = APIRouter(
     prefix="/predict",
     tags=["Prediction"]
 )
-
-
-# ==========================================================
-# Variant Prediction Request
-# ==========================================================
-
-class VariantPredictionInput(BaseModel):
-
-    brand: str
-    model: str
-    vehicle_age: float
-    km_driven: float
-    mileage: float
-    engine: Optional[float] = None
-    seats: Optional[float] = None
 
 
 # ==========================================================
@@ -116,27 +101,19 @@ def predict_variants(
     car: VariantPredictionInput
 ):
     """
-    Predict prices for all variants of a
-    selected brand and model.
+    Predict prices for all variants of a selected brand and model.
     """
 
     try:
 
-        # Normalize model name: ensure it includes brand prefix
-        model_name = car.model
-        if not model_name.lower().startswith(car.brand.lower()):
-            model_name = f"{car.brand} {car.model}"
-
-        result = (
-            VariantPredictionService.predict_variants(
-                brand=car.brand,
-                model=model_name,
-                vehicle_age=car.vehicle_age,
-                km_driven=car.km_driven,
-                mileage=car.mileage,
-                engine=car.engine,
-                seats=car.seats,
-            )
+        result = VariantPredictionService.predict_variants(
+            brand=car.brand,
+            model=car.model,
+            vehicle_age=car.vehicle_age,
+            km_driven=car.km_driven,
+            mileage=car.mileage,
+            engine=car.engine,
+            seats=car.seats,
         )
 
         return result
