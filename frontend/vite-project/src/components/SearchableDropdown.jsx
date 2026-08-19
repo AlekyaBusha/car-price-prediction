@@ -69,12 +69,10 @@ function SearchableDropdown({
     }
 
     setIsOpen(true);
-    // Clear current value so user can search for another value
-    setSearch("");
   }
 
   // ---------------------------------------------------------
-  // Handle typing
+  // Handle typing - commits value immediately to form
   // ---------------------------------------------------------
 
   function handleSearch(event) {
@@ -82,9 +80,16 @@ function SearchableDropdown({
 
     setSearch(inputValue);
     setIsOpen(true);
+    onChange(inputValue);
+  }
 
-    if (inputValue === "") {
-      onChange("");
+  // ---------------------------------------------------------
+  // Handle Blur - ensure typed value is committed
+  // ---------------------------------------------------------
+
+  function handleBlur() {
+    if (search !== value) {
+      onChange(search);
     }
   }
 
@@ -93,7 +98,8 @@ function SearchableDropdown({
   // ---------------------------------------------------------
 
   function handleSelect(option) {
-    setSearch(String(option));
+    const strVal = String(option);
+    setSearch(strVal);
     onChange(option);
     setIsOpen(false);
   }
@@ -108,6 +114,9 @@ function SearchableDropdown({
 
       if (filteredOptions.length === 1) {
         handleSelect(filteredOptions[0]);
+      } else {
+        setIsOpen(false);
+        onChange(search);
       }
     }
 
@@ -156,6 +165,7 @@ function SearchableDropdown({
           placeholder={placeholder}
           disabled={disabled}
           onFocus={handleFocus}
+          onBlur={handleBlur}
           onChange={handleSearch}
           onKeyDown={handleKeyDown}
           style={{
@@ -231,6 +241,22 @@ function SearchableDropdown({
                 {String(option)}
               </div>
             ))
+          ) : search.trim() !== "" ? (
+            <div
+              onMouseDown={(event) => {
+                event.preventDefault();
+                handleSelect(search.trim());
+              }}
+              style={{
+                padding: "12px",
+                color: "#38BDF8",
+                fontSize: "13px",
+                cursor: "pointer",
+                textAlign: "left",
+              }}
+            >
+              ✓ Use &ldquo;{search.trim()}&rdquo; (custom input)
+            </div>
           ) : (
             <div
               style={{
@@ -240,7 +266,7 @@ function SearchableDropdown({
                 textAlign: "center",
               }}
             >
-              No options found
+              No options found (type to enter custom value)
             </div>
           )}
         </div>

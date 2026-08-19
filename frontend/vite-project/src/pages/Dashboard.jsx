@@ -75,13 +75,10 @@ function Dashboard() {
       const result = await predictVariants(payload);
       const variantList = result?.variants || [];
       setVariants(variantList);
-
-      if (variantList.length === 0) {
-        setError(`No variants found for ${data.brand} ${data.model}.`);
-      }
     } catch (err) {
       console.error("Variant fetch error:", err);
-      setError(err.message || "Failed to load variants.");
+      // Non-blocking for unseen models
+      setVariants([]);
     } finally {
       setVariantsLoading(false);
     }
@@ -103,8 +100,10 @@ function Dashboard() {
     }
 
     // Automatically load variants for the predicted car
-    if (result.input?.brand && result.input?.model) {
+    if (result.input?.brand && result.input?.model && result.input.model !== "No models") {
       handleFetchVariants(result.input);
+    } else {
+      setVariants([]);
     }
   };
 
@@ -186,6 +185,8 @@ function Dashboard() {
                           high: prediction.predicted_price,
                         }
                       }
+                      predictionMode={prediction.prediction_mode}
+                      message={prediction.message}
                     />
                   </div>
                 )}

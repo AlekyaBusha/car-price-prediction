@@ -109,6 +109,10 @@ class PredictionResponse(BaseModel):
 
     currency: str = "INR"
 
+    prediction_mode: str = "xgboost"
+
+    message: Optional[str] = None
+
 
 # ==========================================================
 # AI Suggestion Models

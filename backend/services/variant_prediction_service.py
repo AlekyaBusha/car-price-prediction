@@ -183,8 +183,8 @@ class VariantPredictionService:
 
         if model_df.empty:
             return {
-                "success": False,
-                "message": f"No data found for {brand} {model}",
+                "success": True,
+                "message": "No matching variants available for this selection.",
                 "variants": [],
                 "count": 0
             }
@@ -218,8 +218,8 @@ class VariantPredictionService:
 
         if not variants:
             return {
-                "success": False,
-                "message": "No variants available for this model.",
+                "success": True,
+                "message": "No matching variants available for this selection.",
                 "variants": [],
                 "count": 0
             }

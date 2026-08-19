@@ -17,6 +17,11 @@ import {
 
 import SearchableDropdown from "./SearchableDropdown";
 
+const DEFAULT_FUEL_TYPES = ["Petrol", "Diesel", "CNG", "Electric", "LPG"];
+const DEFAULT_TRANSMISSIONS = ["Manual", "Automatic"];
+const DEFAULT_SELLER_TYPES = ["Individual", "Dealer", "Trustmark Dealer"];
+const DEFAULT_SEATS = [2, 4, 5, 6, 7, 8, 9];
+
 function CarForm({
   onPrediction,
   onError,
@@ -27,12 +32,12 @@ function CarForm({
   // Dropdown option arrays
   const [brands, setBrands] = useState([]);
   const [models, setModels] = useState([]);
-  const [fuelTypes, setFuelTypes] = useState([]);
-  const [transmissions, setTransmissions] = useState([]);
-  const [sellerTypes, setSellerTypes] = useState([]);
+  const [fuelTypes, setFuelTypes] = useState(DEFAULT_FUEL_TYPES);
+  const [transmissions, setTransmissions] = useState(DEFAULT_TRANSMISSIONS);
+  const [sellerTypes, setSellerTypes] = useState(DEFAULT_SELLER_TYPES);
   const [engines, setEngines] = useState([]);
   const [maxPowers, setMaxPowers] = useState([]);
-  const [seats, setSeats] = useState([]);
+  const [seats, setSeats] = useState(DEFAULT_SEATS);
 
   // Form input state
   const [formData, setFormData] = useState({
@@ -84,18 +89,18 @@ function CarForm({
     loadBrands();
   }, []);
 
-  // Load models or fallback dropdowns when brand changes
+  // Load models & initial dependent options when brand changes
   useEffect(() => {
     async function loadModels() {
       if (!formData.brand) {
         setModels([]);
         setModelsLoaded(false);
-        setFuelTypes([]);
-        setTransmissions([]);
-        setSellerTypes([]);
+        setFuelTypes(DEFAULT_FUEL_TYPES);
+        setTransmissions(DEFAULT_TRANSMISSIONS);
+        setSellerTypes(DEFAULT_SELLER_TYPES);
         setEngines([]);
         setMaxPowers([]);
-        setSeats([]);
+        setSeats(DEFAULT_SEATS);
         return;
       }
 
@@ -106,43 +111,41 @@ function CarForm({
         setModels(modelList);
         setModelsLoaded(true);
 
-        // If brand has NO models, fetch dependent dropdowns directly using brand
-        if (modelList.length === 0) {
-          const [
-            fuelData,
-            transmissionData,
-            sellerData,
-            engineData,
-            maxPowerData,
-            seatsData,
-          ] = await Promise.all([
-            fetchFuelTypes(formData.brand, ""),
-            fetchTransmissions(formData.brand, ""),
-            fetchSellerTypes(formData.brand, ""),
-            fetchEngines(formData.brand, ""),
-            fetchMaxPowers(formData.brand, ""),
-            fetchSeats(formData.brand, ""),
-          ]);
+        // Fetch brand-level dependent dropdown options
+        const [
+          fuelData,
+          transmissionData,
+          sellerData,
+          engineData,
+          maxPowerData,
+          seatsData,
+        ] = await Promise.all([
+          fetchFuelTypes(formData.brand, ""),
+          fetchTransmissions(formData.brand, ""),
+          fetchSellerTypes(formData.brand, ""),
+          fetchEngines(formData.brand, ""),
+          fetchMaxPowers(formData.brand, ""),
+          fetchSeats(formData.brand, ""),
+        ]);
 
-          setFuelTypes(fuelData?.fuel_types || []);
-          setTransmissions(transmissionData?.transmission_types || []);
-          setSellerTypes(sellerData?.seller_types || []);
-          setEngines(engineData?.engines || []);
-          setMaxPowers(maxPowerData?.max_powers || []);
-          setSeats(seatsData?.seats || []);
-        } else {
-          // Reset dependent options until user picks a model
-          setFuelTypes([]);
-          setTransmissions([]);
-          setSellerTypes([]);
-          setEngines([]);
-          setMaxPowers([]);
-          setSeats([]);
+        setFuelTypes(fuelData?.fuel_types?.length ? fuelData.fuel_types : DEFAULT_FUEL_TYPES);
+        setTransmissions(transmissionData?.transmission_types?.length ? transmissionData.transmission_types : DEFAULT_TRANSMISSIONS);
+        setSellerTypes(sellerData?.seller_types?.length ? sellerData.seller_types : DEFAULT_SELLER_TYPES);
+        setEngines(engineData?.engines || []);
+        setMaxPowers(maxPowerData?.max_powers || []);
+        setSeats(seatsData?.seats?.length ? seatsData.seats : DEFAULT_SEATS);
+
+        if (modelList.length === 0) {
+          setFormData((prev) => ({ ...prev, model: "No models" }));
         }
       } catch (err) {
         console.error("Model loading error:", err);
         setModels([]);
         setModelsLoaded(true);
+        setFuelTypes(DEFAULT_FUEL_TYPES);
+        setTransmissions(DEFAULT_TRANSMISSIONS);
+        setSellerTypes(DEFAULT_SELLER_TYPES);
+        setSeats(DEFAULT_SEATS);
       } finally {
         setModelsLoading(false);
       }
@@ -151,11 +154,10 @@ function CarForm({
     loadModels();
   }, [formData.brand]);
 
-  // Load dependent dropdowns when Model is selected
+  // Load dependent dropdowns when Model is selected or typed
   useEffect(() => {
     async function loadModelOptions() {
-      // Only trigger if a model is explicitly selected
-      if (!formData.brand || !formData.model) {
+      if (!formData.brand || !formData.model || formData.model === "No models") {
         return;
       }
 
@@ -176,20 +178,14 @@ function CarForm({
           fetchSeats(formData.brand, formData.model),
         ]);
 
-        setFuelTypes(fuelData?.fuel_types || []);
-        setTransmissions(transmissionData?.transmission_types || []);
-        setSellerTypes(sellerData?.seller_types || []);
-        setEngines(engineData?.engines || []);
-        setMaxPowers(maxPowerData?.max_powers || []);
-        setSeats(seatsData?.seats || []);
+        if (fuelData?.fuel_types?.length) setFuelTypes(fuelData.fuel_types);
+        if (transmissionData?.transmission_types?.length) setTransmissions(transmissionData.transmission_types);
+        if (sellerData?.seller_types?.length) setSellerTypes(sellerData.seller_types);
+        if (engineData?.engines?.length) setEngines(engineData.engines);
+        if (maxPowerData?.max_powers?.length) setMaxPowers(maxPowerData.max_powers);
+        if (seatsData?.seats?.length) setSeats(seatsData.seats);
       } catch (err) {
         console.error("Dependent dropdown loading error:", err);
-        setFuelTypes([]);
-        setTransmissions([]);
-        setSellerTypes([]);
-        setEngines([]);
-        setMaxPowers([]);
-        setSeats([]);
       }
     }
 
@@ -208,36 +204,36 @@ function CarForm({
     event.preventDefault();
     setError("");
 
-    // Backend-consistent validation: only require fields that are mandatory
-    if (!formData.brand) {
+    // Genuine required field validation
+    if (!formData.brand || !formData.brand.trim()) {
       const errorMsg = "Please select a Brand.";
       setError(errorMsg);
       if (onError) onError(errorMsg);
       return;
     }
 
-    if (models.length > 0 && !formData.model) {
-      const errorMsg = "Please select a Model.";
+    if (models.length > 0 && (!formData.model || !formData.model.trim()) && formData.model !== "No models") {
+      const errorMsg = "Please select or enter a Model.";
       setError(errorMsg);
       if (onError) onError(errorMsg);
       return;
     }
 
-    if (fuelTypes.length > 0 && !formData.fuel_type) {
+    if (!formData.fuel_type || !formData.fuel_type.trim()) {
       const errorMsg = "Please select a Fuel Type.";
       setError(errorMsg);
       if (onError) onError(errorMsg);
       return;
     }
 
-    if (transmissions.length > 0 && !formData.transmission_type) {
+    if (!formData.transmission_type || !formData.transmission_type.trim()) {
       const errorMsg = "Please select a Transmission.";
       setError(errorMsg);
       if (onError) onError(errorMsg);
       return;
     }
 
-    if (sellerTypes.length > 0 && !formData.seller_type) {
+    if (!formData.seller_type || !formData.seller_type.trim()) {
       const errorMsg = "Please select a Seller Type.";
       setError(errorMsg);
       if (onError) onError(errorMsg);
@@ -438,51 +434,31 @@ function CarForm({
               : modelsLoading
               ? "Loading models..."
               : modelsLoaded && models.length === 0
-              ? "No models available"
-              : "🔍 Search model..."
+              ? "No models (type custom model)"
+              : "🔍 Search or enter model..."
           }
-          disabled={!formData.brand || modelsLoading || (modelsLoaded && models.length === 0)}
+          disabled={!formData.brand || modelsLoading}
           required={models.length > 0}
           onChange={(value) => {
             setFormData((previous) => ({
               ...previous,
               model: value,
-              fuel_type: "",
-              transmission_type: "",
-              seller_type: "",
-              engine: "",
-              max_power: "",
-              seats: "",
             }));
-            setFuelTypes([]);
-            setTransmissions([]);
-            setSellerTypes([]);
-            setEngines([]);
-            setMaxPowers([]);
-            setSeats([]);
           }}
         />
 
         {/* FUEL TYPE */}
         <SearchableDropdown
           label="Fuel Type"
-          options={fuelTypes}
+          options={fuelTypes.length > 0 ? fuelTypes : DEFAULT_FUEL_TYPES}
           value={formData.fuel_type}
           placeholder={
             !formData.brand
               ? "Select brand first"
-              : modelsLoaded && models.length > 0 && !formData.model
-              ? "Select model first"
-              : fuelTypes.length === 0
-              ? "No options available"
               : "🔍 Search fuel type..."
           }
-          disabled={
-            !formData.brand ||
-            (modelsLoaded && models.length > 0 && !formData.model) ||
-            fuelTypes.length === 0
-          }
-          required={fuelTypes.length > 0}
+          disabled={!formData.brand}
+          required={true}
           onChange={(value) => {
             setFormData((previous) => ({
               ...previous,
@@ -494,23 +470,15 @@ function CarForm({
         {/* TRANSMISSION */}
         <SearchableDropdown
           label="Transmission"
-          options={transmissions}
+          options={transmissions.length > 0 ? transmissions : DEFAULT_TRANSMISSIONS}
           value={formData.transmission_type}
           placeholder={
             !formData.brand
               ? "Select brand first"
-              : modelsLoaded && models.length > 0 && !formData.model
-              ? "Select model first"
-              : transmissions.length === 0
-              ? "No options available"
               : "🔍 Search transmission..."
           }
-          disabled={
-            !formData.brand ||
-            (modelsLoaded && models.length > 0 && !formData.model) ||
-            transmissions.length === 0
-          }
-          required={transmissions.length > 0}
+          disabled={!formData.brand}
+          required={true}
           onChange={(value) => {
             setFormData((previous) => ({
               ...previous,
@@ -522,23 +490,15 @@ function CarForm({
         {/* SELLER TYPE */}
         <SearchableDropdown
           label="Seller Type"
-          options={sellerTypes}
+          options={sellerTypes.length > 0 ? sellerTypes : DEFAULT_SELLER_TYPES}
           value={formData.seller_type}
           placeholder={
             !formData.brand
               ? "Select brand first"
-              : modelsLoaded && models.length > 0 && !formData.model
-              ? "Select model first"
-              : sellerTypes.length === 0
-              ? "No options available"
               : "🔍 Search seller type..."
           }
-          disabled={
-            !formData.brand ||
-            (modelsLoaded && models.length > 0 && !formData.model) ||
-            sellerTypes.length === 0
-          }
-          required={sellerTypes.length > 0}
+          disabled={!formData.brand}
+          required={true}
           onChange={(value) => {
             setFormData((previous) => ({
               ...previous,
@@ -555,17 +515,9 @@ function CarForm({
           placeholder={
             !formData.brand
               ? "Select brand first"
-              : modelsLoaded && models.length > 0 && !formData.model
-              ? "Select model first"
-              : engines.length === 0
-              ? "No options available"
-              : "🔍 Search engine CC..."
+              : "🔍 Search or type engine CC..."
           }
-          disabled={
-            !formData.brand ||
-            (modelsLoaded && models.length > 0 && !formData.model) ||
-            engines.length === 0
-          }
+          disabled={!formData.brand}
           required={false}
           onChange={(value) => {
             setFormData((previous) => ({
@@ -583,17 +535,9 @@ function CarForm({
           placeholder={
             !formData.brand
               ? "Select brand first"
-              : modelsLoaded && models.length > 0 && !formData.model
-              ? "Select model first"
-              : maxPowers.length === 0
-              ? "No options available"
-              : "🔍 Search max power..."
+              : "🔍 Search or type max power..."
           }
-          disabled={
-            !formData.brand ||
-            (modelsLoaded && models.length > 0 && !formData.model) ||
-            maxPowers.length === 0
-          }
+          disabled={!formData.brand}
           required={false}
           onChange={(value) => {
             setFormData((previous) => ({
@@ -606,22 +550,14 @@ function CarForm({
         {/* SEATS */}
         <SearchableDropdown
           label="Seats (Optional)"
-          options={seats}
+          options={seats.length > 0 ? seats : DEFAULT_SEATS}
           value={formData.seats}
           placeholder={
             !formData.brand
               ? "Select brand first"
-              : modelsLoaded && models.length > 0 && !formData.model
-              ? "Select model first"
-              : seats.length === 0
-              ? "No options available"
-              : "🔍 Search seats..."
+              : "🔍 Search or type seats..."
           }
-          disabled={
-            !formData.brand ||
-            (modelsLoaded && models.length > 0 && !formData.model) ||
-            seats.length === 0
-          }
+          disabled={!formData.brand}
           required={false}
           onChange={(value) => {
             setFormData((previous) => ({

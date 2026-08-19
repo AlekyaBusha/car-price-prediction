@@ -1,7 +1,7 @@
 """
 backend/services/prediction_service.py
 
-Handles car price prediction and fair price range calculation.
+Handles car price prediction, fair price range calculation, and fallback detection.
 """
 
 import numpy as np
@@ -10,18 +10,47 @@ import pandas as pd
 from backend.ml.feature_engineering import engineer_features
 from backend.ml.model_loader import loader
 from backend.ml.price_range import get_price_range
+from backend.utils.data_loader import data_loader
 
 
 class PredictionService:
 
     # ==========================================================
-    # Normal Single Prediction
+    # Helper: Check if exact combination exists in dataset
     # ==========================================================
 
     @staticmethod
-    def predict(car_data: dict):
+    def is_exact_dataset_match(car_data: dict) -> bool:
         """
-        Predict car price from user input.
+        Checks if the user's specific Brand + Model + Fuel + Transmission combination
+        exists in the training dataset.
+        """
+        df = data_loader.df
+        brand = str(car_data.get("brand", "")).strip().lower()
+        model = str(car_data.get("model", "")).strip().lower()
+        fuel = str(car_data.get("fuel_type", "")).strip().lower()
+        trans = str(car_data.get("transmission_type", "")).strip().lower()
+
+        if not brand or not model or model in ["", "no models", "unknown", "none"] or not fuel or not trans:
+            return False
+
+        mask = (
+            (df["brand"].astype(str).str.strip().str.lower() == brand) &
+            (df["model"].astype(str).str.strip().str.lower() == model) &
+            (df["fuel_type"].astype(str).str.strip().str.lower() == fuel) &
+            (df["transmission_type"].astype(str).str.strip().str.lower() == trans)
+        )
+
+        return bool(mask.any())
+
+    # ==========================================================
+    # Normal Single Prediction
+    # ==========================================================
+
+    @classmethod
+    def predict(cls, car_data: dict):
+        """
+        Predict car price from user input using the trained XGBoost model.
 
         Returns:
             dict:
@@ -29,7 +58,23 @@ class PredictionService:
                 predicted_price
                 price_range
                 currency
+                prediction_mode ("xgboost" or "xgboost_fallback")
+                message (informational notice if fallback mode is used)
         """
+
+        # -----------------------------------------------------
+        # Determine prediction mode (exact match vs fallback)
+        # -----------------------------------------------------
+        is_exact = cls.is_exact_dataset_match(car_data)
+        prediction_mode = "xgboost" if is_exact else "xgboost_fallback"
+
+        message = None
+        if not is_exact:
+            message = (
+                "Prediction confidence may be lower because this vehicle configuration "
+                "is not sufficiently represented in the training data. "
+                "Providing complete and accurate vehicle details can improve the estimate."
+            )
 
         # -----------------------------------------------------
         # Convert input dictionary into DataFrame
@@ -38,7 +83,7 @@ class PredictionService:
         df = pd.DataFrame([car_data])
 
         # -----------------------------------------------------
-        # Apply feature engineering
+        # Apply robust feature engineering
         # -----------------------------------------------------
 
         encoded_df, _ = engineer_features(
@@ -48,7 +93,8 @@ class PredictionService:
         )
 
         # -----------------------------------------------------
-        # Predict price (convert from log1p scale)
+        # Predict price using CURRENT XGBoost model
+        # (convert from log1p scale)
         # -----------------------------------------------------
 
         raw_pred = loader.model.predict(
@@ -76,7 +122,9 @@ class PredictionService:
             "success": True,
             "predicted_price": predicted_price,
             "price_range": price_range,
-            "currency": "INR"
+            "currency": "INR",
+            "prediction_mode": prediction_mode,
+            "message": message
         }
 
     # ==========================================================
@@ -91,9 +139,14 @@ class PredictionService:
         """
         Generate predictions for valid
         Engine + Max Power + Seats combinations.
-
-        Each combination comes from the actual dataset.
         """
+        from backend.services.dropdown_service import dropdown_service
+
+        if not combinations:
+            combinations = dropdown_service.get_vehicle_spec_combinations(
+                car_data.get("brand"),
+                car_data.get("model")
+            )
 
         results = []
 
@@ -103,100 +156,18 @@ class PredictionService:
 
         for combination in combinations:
 
-            # --------------------------------------------------
-            # Copy original user input
-            # --------------------------------------------------
-
             option_data = car_data.copy()
+            option_data["engine"] = combination.get("engine")
+            option_data["max_power"] = combination.get("max_power")
+            option_data["seats"] = combination.get("seats")
 
-            # --------------------------------------------------
-            # Set Engine, Max Power and Seats
-            # --------------------------------------------------
-
-            option_data["engine"] = combination["engine"]
-
-            option_data["max_power"] = combination["max_power"]
-
-            option_data["seats"] = combination["seats"]
-
-            # --------------------------------------------------
-            # Convert numeric values
-            # --------------------------------------------------
-
-            option_data["engine"] = float(
-                option_data["engine"]
-            )
-
-            option_data["max_power"] = float(
-                option_data["max_power"]
-            )
-
-            option_data["seats"] = float(
-                option_data["seats"]
-            )
-
-            # --------------------------------------------------
-            # Convert input into DataFrame
-            # --------------------------------------------------
-
-            df = pd.DataFrame(
-                [option_data]
-            )
-
-            # --------------------------------------------------
-            # Apply the SAME feature engineering
-            # used by the normal prediction
-            # --------------------------------------------------
+            df = pd.DataFrame([option_data])
 
             encoded_df, _ = engineer_features(
                 df,
                 freq_map=loader.freq_map,
                 reference_columns=loader.reference_columns
             )
-
-            # --------------------------------------------------
-            # Ensure numeric columns are numeric
-            # --------------------------------------------------
-
-            for column in [
-                "engine",
-                "max_power",
-                "seats"
-            ]:
-
-                if column in encoded_df.columns:
-
-                    encoded_df[column] = pd.to_numeric(
-                        encoded_df[column],
-                        errors="coerce"
-                    )
-
-            # --------------------------------------------------
-            # Check for invalid numeric values
-            # --------------------------------------------------
-
-            numeric_columns = [
-                column
-                for column in [
-                    "engine",
-                    "max_power",
-                    "seats"
-                ]
-                if column in encoded_df.columns
-            ]
-
-            if encoded_df[
-                numeric_columns
-            ].isnull().any().any():
-
-                raise ValueError(
-                    "Invalid numeric values found in "
-                    "engine, max_power, or seats."
-                )
-
-            # --------------------------------------------------
-            # Predict price (convert from log1p scale)
-            # --------------------------------------------------
 
             raw_pred = loader.model.predict(
                 encoded_df
@@ -207,32 +178,20 @@ class PredictionService:
                 2
             )
 
-            # --------------------------------------------------
-            # Store prediction
-            # --------------------------------------------------
-
             results.append(
                 {
-                    "engine": combination["engine"],
-                    "max_power": combination["max_power"],
-                    "seats": combination["seats"],
+                    "engine": combination.get("engine"),
+                    "max_power": combination.get("max_power"),
+                    "seats": combination.get("seats"),
                     "predicted_price": predicted_price
                 }
             )
 
-        # ======================================================
-        # Sort results
-        # Highest predicted price first
-        # ======================================================
-
+        # Sort highest price first
         results.sort(
             key=lambda item: item["predicted_price"],
             reverse=True
         )
-
-        # ======================================================
-        # Return response
-        # ======================================================
 
         return {
             "success": True,

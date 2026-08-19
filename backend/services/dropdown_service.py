@@ -87,10 +87,9 @@ class DropdownService:
     # Fuel Types
     # ==========================================================
 
-    def get_fuel_types(self, brand, model):
-        df = self.get_model_data(brand, model)
-
-        return sorted(
+    def get_fuel_types(self, brand=None, model=None):
+        df = self.get_model_data(brand, model) if brand else self.df
+        types = sorted(
             df["fuel_type"]
             .dropna()
             .astype(str)
@@ -98,15 +97,24 @@ class DropdownService:
             .unique()
             .tolist()
         )
+        if not types:
+            types = sorted(
+                self.df["fuel_type"]
+                .dropna()
+                .astype(str)
+                .str.strip()
+                .unique()
+                .tolist()
+            )
+        return types
 
     # ==========================================================
     # Transmission Types
     # ==========================================================
 
-    def get_transmission_types(self, brand, model):
-        df = self.get_model_data(brand, model)
-
-        return sorted(
+    def get_transmission_types(self, brand=None, model=None):
+        df = self.get_model_data(brand, model) if brand else self.df
+        types = sorted(
             df["transmission_type"]
             .dropna()
             .astype(str)
@@ -114,15 +122,24 @@ class DropdownService:
             .unique()
             .tolist()
         )
+        if not types:
+            types = sorted(
+                self.df["transmission_type"]
+                .dropna()
+                .astype(str)
+                .str.strip()
+                .unique()
+                .tolist()
+            )
+        return types
 
     # ==========================================================
     # Seller Types
     # ==========================================================
 
-    def get_seller_types(self, brand, model):
-        df = self.get_model_data(brand, model)
-
-        return sorted(
+    def get_seller_types(self, brand=None, model=None):
+        df = self.get_model_data(brand, model) if brand else self.df
+        types = sorted(
             df["seller_type"]
             .dropna()
             .astype(str)
@@ -130,58 +147,92 @@ class DropdownService:
             .unique()
             .tolist()
         )
+        if not types:
+            types = sorted(
+                self.df["seller_type"]
+                .dropna()
+                .astype(str)
+                .str.strip()
+                .unique()
+                .tolist()
+            )
+        return types
 
     # ==========================================================
     # Engines
     # ==========================================================
 
-    def get_engines(self, brand, model):
-        df = self.get_model_data(brand, model)
-
-        return sorted(
+    def get_engines(self, brand=None, model=None):
+        df = self.get_model_data(brand, model) if brand else self.df
+        engines = sorted(
             df["engine"]
             .dropna()
             .astype(int)
             .unique()
             .tolist()
         )
+        if not engines:
+            engines = sorted(
+                self.df["engine"]
+                .dropna()
+                .astype(int)
+                .unique()
+                .tolist()
+            )
+        return engines
 
     # ==========================================================
     # Max Power
     # ==========================================================
 
-    def get_max_powers(self, brand, model):
-        df = self.get_model_data(brand, model)
-
-        return sorted(
+    def get_max_powers(self, brand=None, model=None):
+        df = self.get_model_data(brand, model) if brand else self.df
+        powers = sorted(
             df["max_power"]
             .dropna()
             .astype(float)
             .unique()
             .tolist()
         )
+        if not powers:
+            powers = sorted(
+                self.df["max_power"]
+                .dropna()
+                .astype(float)
+                .unique()
+                .tolist()
+            )
+        return powers
 
     # ==========================================================
     # Seats
     # ==========================================================
 
-    def get_seats(self, brand, model):
-        df = self.get_model_data(brand, model)
-
-        return sorted(
+    def get_seats(self, brand=None, model=None):
+        df = self.get_model_data(brand, model) if brand else self.df
+        seats = sorted(
             df["seats"]
             .dropna()
             .astype(int)
             .unique()
             .tolist()
         )
+        if not seats:
+            seats = sorted(
+                self.df["seats"]
+                .dropna()
+                .astype(int)
+                .unique()
+                .tolist()
+            )
+        return seats
 
     # ==========================================================
     # Valid Engine + Max Power + Seats combinations
     # ==========================================================
 
-    def get_vehicle_spec_combinations(self, brand, model):
-        df = self.get_model_data(brand, model)
+    def get_vehicle_spec_combinations(self, brand=None, model=None):
+        df = self.get_model_data(brand, model) if brand else self.df
 
         columns = [
             "engine",
@@ -195,6 +246,14 @@ class DropdownService:
             .drop_duplicates()
             .sort_values(by=columns)
         )
+
+        if combinations.empty:
+            combinations = (
+                self.df[columns]
+                .dropna()
+                .drop_duplicates()
+                .sort_values(by=columns)
+            )
 
         return combinations.to_dict(orient="records")
 

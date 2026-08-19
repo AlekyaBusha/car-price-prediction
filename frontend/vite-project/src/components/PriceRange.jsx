@@ -5,7 +5,7 @@
 
 import "../styles/PriceRange.css";
 
-export default function PriceRange({ data }) {
+export default function PriceRange({ data, predictionMode, message }) {
   if (!data) {
     return null;
   }
@@ -22,7 +22,7 @@ export default function PriceRange({ data }) {
   };
 
   const priceRange = high - low;
-  const lowPercentage = low ? ((predicted - low) / priceRange) * 100 : 0;
+  const lowPercentage = low && priceRange > 0 ? ((predicted - low) / priceRange) * 100 : 50;
 
   return (
     <div className="price-range-container">
@@ -35,6 +35,17 @@ export default function PriceRange({ data }) {
           <p className="predicted-value">{formatPrice(predicted)}</p>
         </div>
 
+        {/* Fallback mode informational notice */}
+        {message && (
+          <div className="fallback-info-badge">
+            <span className="fallback-info-icon">ℹ️</span>
+            <div className="fallback-info-content">
+              <p className="fallback-info-title">Vehicle configuration estimated with XGBoost</p>
+              <p className="fallback-info-text">{message}</p>
+            </div>
+          </div>
+        )}
+
         {/* Price Range Visualization */}
         <div className="range-visualization">
           <div className="range-labels">
@@ -45,7 +56,7 @@ export default function PriceRange({ data }) {
           <div className="range-bar">
             <div
               className="range-marker"
-              style={{ left: `${lowPercentage}%` }}
+              style={{ left: `${Math.max(0, Math.min(100, lowPercentage))}%` }}
               title={`Predicted: ${formatPrice(predicted)}`}
             ></div>
           </div>

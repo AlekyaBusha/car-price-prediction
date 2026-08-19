@@ -116,7 +116,7 @@ export default function VariantComparison({
         </div>
       ) : !sortedVariants || sortedVariants.length === 0 ? (
         <div className="no-variants-message">
-          <p>No variants loaded yet.</p>
+          <p>No matching variants available for this selection.</p>
           {onCompareAllVariants && (
             <button
               type="button"
@@ -124,7 +124,7 @@ export default function VariantComparison({
               onClick={onCompareAllVariants}
               disabled={!hasModelSelected}
             >
-              Click "Compare All Variants" to fetch trims
+              Click &ldquo;Compare All Variants&rdquo; to search trims
             </button>
           )}
         </div>
