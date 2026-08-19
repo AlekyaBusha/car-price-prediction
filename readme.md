@@ -19,8 +19,7 @@ An end-to-end, production-grade Machine Learning web application designed to del
 12. [SHAP Explainability](#12-shap-explainability)
 13. [Future Depreciation Forecasting](#13-future-depreciation-forecasting)
 14. [Compare Variants](#14-compare-variants)
-15. [Model Accuracy Page](#15-model-accuracy-page)
-16. [Deployment Guide](#16-deployment-guide)
+15. [Deployment Guide](#15-deployment-guide)
 
 ---
 
@@ -32,11 +31,10 @@ Estimating the fair market price of a pre-owned vehicle requires balancing compl
 ## 2. Key Features
 - 🎯 **Instant Price Prediction**: Real-time valuation in Indian Rupees (INR) with sub-15ms inference.
 - 📊 **Fair Market Price Range**: 95% confidence bounds providing realistic bargaining intervals.
-- 🔍 **TreeSHAP Explainability**: Local feature contribution breakdown explaining positive/negative price drivers.
-- 📈 **Depreciation Forecasting**: Valuation curve over 0, 6, 12, and 24 months based on vehicle aging.
-- 🚗 **Factory Variant Comparison**: Automatic comparison with all available trims and specifications.
+- 🚗 **Factory Variant Comparison**: (Default Tab 1) Instant comparison with all available trims and specifications.
+- 🔍 **TreeSHAP Explainability**: (Tab 2) Local feature contribution breakdown explaining positive/negative price drivers.
+- 📈 **Depreciation Forecasting**: (Tab 3) Valuation curve over 0, 6, 12, and 24 months based on vehicle aging.
 - ⏱️ **Timing Recommendation**: AI buying advisor ("Buy Now" vs "Wait" recommendation).
-- 🏆 **Model Accuracy Page**: Dedicated top-level metrics page displaying the 4-bar metric comparison (Accuracy, Precision, Recall, F1 Score).
 
 ---
 
@@ -222,13 +220,6 @@ Projects depreciation over 6, 12, and 24 months factoring in age progression and
 ## 14. Compare Variants
 Users can compare the selected car with other factory variants of the same brand and model, viewing specifications (engine CC, power, seats, transmission) alongside live estimated prices.
 
----
-
-## 15. Model Accuracy Page
-Accessible directly via the **Accuracy** tab in the top navigation header, displaying the **Comparison of Model Evaluation Metrics** (Accuracy, Precision, Recall, and F1 Score) in a clean, responsive 4-bar visualization.
-
----
-
-## 16. Deployment Guide
+## 15. Deployment Guide
 
 Refer to [`docs/DEPLOYMENT.md`](file:///c:/Users/Dell/OneDrive/Desktop/car%20price%20pridiction/docs/DEPLOYMENT.md) for full Docker, Docker Compose, and cloud hosting instructions.

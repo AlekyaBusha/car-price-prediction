@@ -48,13 +48,12 @@ The Used Car Price Prediction platform is an end-to-end Machine Learning web app
 
 ### 2.1 Frontend Layer (`frontend/vite-project/src/`)
 - **`main.jsx` & `App.jsx`**: Bootstraps the React DOM and mounts the main dashboard.
-- **`Header/`**: Provides top-level view switching between **Predict Price** and **Evaluation**.
+- **`Header/`**: Provides clean application branding and top header navigation.
 - **`CarForm.jsx`**: Handles dynamic cascading dropdown queries (Brand -> Model -> Specs) and input validation.
 - **`PriceRange.jsx`**: Renders predicted price along with fair lower and upper market valuation bounds.
-- **`ForecastChartEnhanced.jsx`**: SVG line chart visualizing 0, 6, 12, and 24-month depreciation paths.
-- **`ShapExplanation.jsx` & `ShapChart.jsx`**: Displays localized feature attributions (SHAP values).
-- **`VariantComparison.jsx` & `VariantCard.jsx`**: Renders paginated factory variant cards with live pricing.
-- **`AccuracyPage.jsx`**: Dedicated model accuracy metrics view rendering the "Comparison of Model Evaluation Metrics" 4-bar graph (Accuracy, Precision, Recall, F1 Score).
+- **`VariantComparison.jsx` & `VariantCard.jsx`**: (Default Tab 1) Renders paginated factory variant cards with live pricing.
+- **`ShapExplanation.jsx` & `ShapChart.jsx`**: (Tab 2) Displays localized feature attributions (SHAP values).
+- **`ForecastChartEnhanced.jsx`**: (Tab 3) SVG line chart visualizing 0, 6, 12, and 24-month depreciation paths and timing recommendation.
 
 ### 2.2 Backend Layer (`backend/`)
 - **`api/main.py`**: Configures CORS middleware, life-cycle events, and mounts sub-routers.
@@ -62,4 +61,5 @@ The Used Car Price Prediction platform is an end-to-end Machine Learning web app
 - **`ml/model_loader.py`**: Singleton that loads `xgb_model.pkl`, `reference_columns.json`, and `model_freq_map.json` into RAM upon startup, enabling sub-15ms predictions.
 - **`services/prediction_service.py`**: Runs XGBoost regression on `log1p` space and inverts via `np.expm1()`.
 - **`services/explain_service.py`**: Computes SHAP values using `shap.TreeExplainer`.
-- **`services/analytics_service.py`**: Evaluates model performance on the untouched 3,049 test records.
+- **`services/forecast_service.py` & `ml/forecast_engine.py`**: Computes multi-horizon depreciation trajectories.
+- **`services/variant_prediction_service.py`**: Predicts and formats comparative pricing for factory trims.

@@ -3,7 +3,6 @@ import "./Header.css";
 function Header({ activeNav = "predict", onSelectNav }) {
   const navItems = [
     { id: "predict", label: "Predict Price", icon: "🚗" },
-    { id: "accuracy", label: "Accuracy", icon: "📊" },
   ];
 
   return (

@@ -140,26 +140,3 @@ The Used Car Price Prediction Backend is built using FastAPI and provides RESTfu
 | `/dropdown/transmissions` | `GET` | Returns transmission types (`Manual`, `Automatic`) |
 | `/dropdown/seller_types` | `GET` | Returns seller types (`Individual`, `Dealer`, `Trustmark Dealer`) |
 | `/dropdown/seats` | `GET` | Returns seat configurations (`2`, `4`, `5`, `6`, `7`, `8`, `9`, `10`, `14`) |
-
----
-
-## 4. Model Accuracy & Evaluation Endpoint
-
-### 4.1 Accuracy Metrics
-- **Method**: `GET`
-- **Route**: `/accuracy` (or `/analytics/accuracy`)
-- **Description**: Returns the four key comparison metrics: Accuracy, Precision, Recall, and F1 Score for visualization on the Accuracy page.
-
-#### Response (`200 OK`):
-```json
-{
-  "success": true,
-  "title": "Comparison of Model Evaluation Metrics",
-  "metrics": [
-    { "name": "Accuracy", "value": 0.97, "formatted": "0.97" },
-    { "name": "Precision", "value": 1.00, "formatted": "1.00" },
-    { "name": "Recall", "value": 0.10, "formatted": "0.10" },
-    { "name": "F1 Score", "value": 0.18, "formatted": "0.18" }
-  ]
-}
-```

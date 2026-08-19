@@ -121,33 +121,6 @@ export async function fetchSeats(brand, model = "") {
 
 
 // =========================================================
-// ACCURACY & METRICS
-// =========================================================
-
-export async function fetchAccuracyMetrics() {
-  try {
-    const response = await fetch(`${BASE_URL}/accuracy`);
-    if (response.ok) {
-      return await response.json();
-    }
-  } catch (err) {
-    console.warn("Could not fetch /accuracy from server, using fallback:", err);
-  }
-
-  return {
-    success: true,
-    title: "Comparison of Model Evaluation Metrics",
-    metrics: [
-      { name: "Accuracy", value: 0.97, formatted: "0.97" },
-      { name: "Precision", value: 1.00, formatted: "1.00" },
-      { name: "Recall", value: 0.10, formatted: "0.10" },
-      { name: "F1 Score", value: 0.18, formatted: "0.18" }
-    ]
-  };
-}
-
-
-// =========================================================
 // PREDICTION
 // =========================================================
 
