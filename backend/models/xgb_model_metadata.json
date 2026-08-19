@@ -1,75 +1,91 @@
 {
-  "model_name": "XGBRegressor",
-  "algorithm": "XGBoost",
-  "model_file": "backend/models/xgb_model.pkl",
-  "status": "CURRENT",
-  "created_at": "2026-08-18",
-  "dataset": {
-    "name": "cleaned_car_data.csv",
-    "path": "backend/data/processed/cleaned_car_data.csv",
-    "files": [
-      "backend/data/processed/cleaned_car_data.csv"
-    ],
-    "rows": 15244,
-    "train_rows": 12195,
-    "validation_rows": 0,
-    "test_rows": 3049,
-    "features": 44,
-    "target": "selling_price",
-    "merged": false
-  },
-  "target": {
-    "target_variable": "selling_price",
-    "transformation": "log1p",
-    "inverse_transformation": "expm1"
-  },
-  "features": {
-    "total_count": 44,
-    "continuous_features": [
-      "vehicle_age",
-      "km_driven",
-      "mileage",
-      "engine",
-      "max_power",
-      "seats"
-    ],
-    "frequency_encoded_features": [
-      "model_freq"
-    ],
-    "one_hot_encoded_categories": {
-      "brand": 32,
-      "fuel_type": 5,
-      "transmission_type": 2,
-      "seller_type": 3
+    "model_name": "XGBRegressor",
+    "algorithm": "XGBoost",
+    "model_file": "backend/models/xgb_model.pkl",
+    "status": "CURRENT",
+    "xgboost_version": "3.4.1",
+    "target_column": "selling_price",
+    "target_transformation": "log1p",
+    "inverse_transformation": "expm1",
+    "training": {
+        "dataset": "backend/data/processed/cleaned_car_data.csv",
+        "dataset_name": "cleaned_car_data.csv",
+        "total_samples": 15244,
+        "train_samples": 12195,
+        "test_samples": 3049,
+        "validation_samples": 0,
+        "train_test_split_ratio": "80/20",
+        "random_state": 42,
+        "features": 44
     },
-    "reference_schema_file": "backend/models/reference_columns.json",
-    "frequency_map_file": "backend/models/model_freq_map.json"
-  },
-  "hyperparameters": {
-    "n_estimators": 450,
-    "max_depth": 7,
-    "learning_rate": 0.025,
-    "subsample": 0.8,
-    "colsample_bytree": 0.75,
-    "min_child_weight": 3,
-    "gamma": 0.0,
-    "reg_alpha": 0.2,
-    "reg_lambda": 1.5,
-    "objective": "reg:squarederror",
-    "booster": "gbtree",
-    "random_state": 42,
-    "n_jobs": -1
-  },
-  "evaluation": {
-    "mae": 92608.39,
-    "rmse": 192899.86,
-    "r2": 0.938801,
-    "r2_percent": 93.88,
-    "mape": 12.25,
-    "median_absolute_error": 51268.94,
-    "cv_mae_mean": 96890.43,
-    "cv_mae_std": 9734.78,
-    "cv_folds": 5,
-    "test_partition_size": "20% (3,049 samples)"
-  }
+    "features": {
+        "total_count": 44,
+        "continuous_features": [
+            "vehicle_age",
+            "km_driven",
+            "mileage",
+            "engine",
+            "max_power",
+            "seats"
+        ],
+        "frequency_encoded_features": [
+            "model_freq"
+        ],
+        "one_hot_encoded_categories": {
+            "brand": 30,
+            "seller_type": 2,
+            "fuel_type": 4,
+            "transmission_type": 1
+        },
+        "reference_schema_file": "backend/models/reference_columns.json",
+        "frequency_map_file": "backend/models/model_freq_map.json"
+    },
+    "hyperparameters": {
+        "n_estimators": 450,
+        "max_depth": 7,
+        "learning_rate": 0.025,
+        "subsample": 0.8,
+        "colsample_bytree": 0.75,
+        "min_child_weight": 3,
+        "gamma": 0.0,
+        "reg_alpha": 0.2,
+        "reg_lambda": 1.5,
+        "objective": "reg:squarederror",
+        "booster": "gbtree",
+        "random_state": 42
+    },
+    "tree_info": {
+        "n_estimators": 450,
+        "number_of_trees": 450,
+        "max_depth": 7,
+        "booster_type": "gbtree",
+        "objective": "reg:squarederror",
+        "feature_count": 44,
+        "xgboost_version": "3.4.1"
+    },
+    "evaluation": {
+        "mae": 92608.39,
+        "rmse": 192899.86,
+        "r2": 0.938801,
+        "r2_percent": 93.88,
+        "medae": 51268.94,
+        "median_absolute_error": 51268.94,
+        "mape": 12.25,
+        "cv_mae": 96890.43,
+        "cv_mae_mean": 96890.43,
+        "cv_mae_std": 9734.78,
+        "cv_folds": 5,
+        "test_partition_size": "20% (3,049 samples)"
+    },
+    "metrics": {
+        "mae": 92608.39,
+        "rmse": 192899.86,
+        "r2": 0.938801,
+        "median_absolute_error": 51268.94,
+        "medae": 51268.94,
+        "mape": 12.25,
+        "cv_mae": 96890.43,
+        "cv_mae_mean": 96890.43,
+        "cv_mae_std": 9734.78
+    }
 }
